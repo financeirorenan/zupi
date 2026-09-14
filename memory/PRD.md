@@ -34,3 +34,7 @@ Ver `/app/memory/test_credentials.md` (admin: financeirorenanuk@gmail.com / Zupi
 1. Rodar teste e2e UI do fluxo completo checkout→kanban→entrega→avaliação.
 2. Integrar Stripe (chave de teste do ambiente) para pagamento online real.
 3. Upload de imagens de produtos/banners via object storage.
+
+## 2026-06 — Correções
+- Bug: crash "destroy is not a function" em /lojista/cupons e /lojista/cardapio (useEffect retornando Promise). Corrigido.
+- Painel do lojista redesenhado com menu superior (layout tablet) via `DashboardLayout variant="top"`; admin mantém sidebar.

@@ -16,7 +16,7 @@ export default function MerchantCoupons() {
   const [form, setForm] = useState(null);
 
   const load = () => api.get("/merchant/coupons").then((r) => setCoupons(r.data)).catch(() => setCoupons([]));
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
 
   const save = async () => {
     const payload = {
@@ -34,7 +34,7 @@ export default function MerchantCoupons() {
   };
 
   return (
-    <DashboardLayout
+    <DashboardLayout variant="top"
       menu={MERCHANT_MENU}
       title="Cupons"
       subtitle="Crie cupons para atrair clientes do seu bairro"

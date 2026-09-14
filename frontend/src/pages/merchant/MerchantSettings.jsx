@@ -63,10 +63,10 @@ export default function MerchantSettings() {
     setForm({ ...form, hours });
   };
 
-  if (!form) return <DashboardLayout menu={MERCHANT_MENU} title="Configurações"><Loading /></DashboardLayout>;
+  if (!form) return <DashboardLayout variant="top" menu={MERCHANT_MENU} title="Configurações"><Loading /></DashboardLayout>;
 
   return (
-    <DashboardLayout
+    <DashboardLayout variant="top"
       menu={MERCHANT_MENU}
       title={rest ? "Configurações" : "Cadastro do restaurante"}
       subtitle={rest ? `${rest.name} • ${rest.status === "active" ? "Ativo" : rest.status === "pending" ? "Aguardando aprovação" : "Bloqueado"}` : "Preencha os dados para começar a vender"}

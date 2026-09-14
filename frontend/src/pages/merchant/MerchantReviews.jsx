@@ -16,7 +16,7 @@ export default function MerchantReviews() {
   const avg = reviews?.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : null;
 
   return (
-    <DashboardLayout menu={MERCHANT_MENU} title="Avaliações" subtitle={avg ? `Média ${avg} em ${reviews.length} avaliações` : "O que seus clientes dizem"}>
+    <DashboardLayout variant="top" menu={MERCHANT_MENU} title="Avaliações" subtitle={avg ? `Média ${avg} em ${reviews.length} avaliações` : "O que seus clientes dizem"}>
       {!reviews ? <Loading /> : reviews.length === 0 ? (
         <EmptyState icon={Star} title="Sem avaliações ainda" description="Avaliações aparecem aqui após pedidos entregues." />
       ) : (

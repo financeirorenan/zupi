@@ -42,7 +42,7 @@ export default function MerchantDashboard() {
 
   if (noRestaurant) {
     return (
-      <DashboardLayout menu={MERCHANT_MENU} title="Bem-vindo ao Zupi!" subtitle="Vamos cadastrar seu restaurante">
+      <DashboardLayout variant="top" menu={MERCHANT_MENU} title="Bem-vindo ao Zupi!" subtitle="Vamos cadastrar seu restaurante">
         <div className="bg-white rounded-2xl border p-8 max-w-lg text-center mx-auto mt-10" data-testid="onboarding-cta">
           <p className="font-display font-extrabold text-xl text-slate-900">Quase lá!</p>
           <p className="text-sm text-slate-500 mt-2">Complete o cadastro do seu restaurante para aparecer no app. Apenas R$ 2,00 por pedido, sem mensalidade.</p>
@@ -55,7 +55,7 @@ export default function MerchantDashboard() {
   }
 
   return (
-    <DashboardLayout
+    <DashboardLayout variant="top"
       menu={MERCHANT_MENU}
       title="Dashboard"
       subtitle="Visão geral das suas vendas"

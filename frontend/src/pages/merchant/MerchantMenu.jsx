@@ -23,7 +23,7 @@ export default function MerchantMenu() {
       .then(([c, p]) => { setCats(c.data); setProducts(p.data); })
       .catch(() => setCats([]));
   };
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
 
   const saveCategory = async () => {
     try {
@@ -54,7 +54,7 @@ export default function MerchantMenu() {
   };
 
   return (
-    <DashboardLayout
+    <DashboardLayout variant="top"
       menu={MERCHANT_MENU}
       title="Cardápio"
       subtitle="Categorias, produtos e adicionais"

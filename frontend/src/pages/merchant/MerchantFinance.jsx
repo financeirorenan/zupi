@@ -17,7 +17,7 @@ export default function MerchantFinance() {
   }, [days]);
 
   return (
-    <DashboardLayout
+    <DashboardLayout variant="top"
       menu={MERCHANT_MENU}
       title="Financeiro"
       subtitle="Transparência total: só R$ 2,00 por pedido"

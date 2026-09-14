@@ -111,7 +111,7 @@ export default function MerchantOrders() {
   );
 
   return (
-    <DashboardLayout menu={MERCHANT_MENU} title="Central de Pedidos" subtitle="Atualização automática a cada 5 segundos">
+    <DashboardLayout variant="top" menu={MERCHANT_MENU} title="Central de Pedidos" subtitle="Atualização automática a cada 5 segundos">
       <div className="flex gap-3 overflow-x-auto no-scrollbar pb-4 -mx-1 px-1" data-testid="orders-kanban">
         {COLUMNS.map((col) => {
           const list = colOrders(col.id);

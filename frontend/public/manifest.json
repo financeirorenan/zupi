@@ -1,0 +1,9 @@
+{
+  "short_name": "Zupi",
+  "name": "Zupi Delivery — O delivery da sua cidade",
+  "icons": [],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#FF5722",
+  "background_color": "#F8F9FA"
+}

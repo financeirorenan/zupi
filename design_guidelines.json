@@ -1,0 +1,183 @@
+{
+  "project_name": "ZUPI DELIVERY",
+  "tagline": "O delivery da sua cidade.",
+  "app_type": "hybrid_fullstack",
+  "archetype": "ORGANIC_AND_FRIENDLY_LOCAL",
+  "target_audience": "Cidades pequenas e médias do Brasil. Usuários com pouca familiaridade tecnológica, comerciantes locais e administradores regionais.",
+  "environments": {
+    "customer_pwa": {
+      "name": "App do Cliente (PWA Mobile-First)",
+      "navigation": "Navegação inferior fixa (Início, Buscar, Pedidos, Favoritos, Perfil) no mobile e topbar responsiva no desktop.",
+      "key_screens": [
+        "Home com geolocalização da cidade, busca rápida, categorias (Marmitas, Lanches, Pizza, Açaí, Bebidas), carrossel de promoções e restaurantes próximos",
+        "Página/Modal do Restaurante com informações de entrega, avaliação, tempo estimado e cardápio categorizado",
+        "Modal de Produto com foto, escolha de adicionais obrigatorios e opcionais, contador de quantidade e campo de observação",
+        "Carrinho e Checkout simplificado em poucos passos (Endereço, Forma de Pagamento com chave PIX copia e cola / troco em dinheiro, Resumo do Pedido)",
+        "Acompanhamento do Pedido em Tempo Real com timeline de status interativa (Realizado -> Confirmado -> Em Preparo -> Saiu p/ Entrega -> Entregue) e suporte rápido via WhatsApp"
+      ]
+    },
+    "merchant_panel": {
+      "name": "Painel do Lojista (Gestão do Restaurante)",
+      "navigation": "Sidebar lateral esquerda dobrável com acesso rápido ao Kanban de Pedidos, Cardápio, Horários, Entrega, Cupons e Financeiro.",
+      "key_screens": [
+        "Dashboard de Vendas (Faturamento do dia, Pedidos, Ticket Médio, Taxa Zupi acumulada)",
+        "Central de Pedidos Kanban em Tempo Real (Colunas: Novos, Em Preparo, Prontos/Em Rota, Concluídos) com efeito sonoro visual/alerta",
+        "Gestão de Cardápio (CRUD de Categorias, Produtos, Adicionais e Opcionais com toggle Disponível/Esgotado)",
+        "Configuração de Área de Entrega e Horários de Funcionamento (Aberto/Fechado emergencial)",
+        "Extrato Financeiro Transparente com cálculo exato da taxa Zupi de R$ 2,00 por pedido"
+      ]
+    },
+    "admin_panel": {
+      "name": "Painel Administrativo ZUPI (Super Admin)",
+      "navigation": "Sidebar administrativa executiva com seletor de cidade e visão consolidada.",
+      "key_screens": [
+        "Dashboard Executivo (GMV Total, Receita Zupi @ R$2/pedido, Pedidos Totais, Cidades Ativas, Gráficos de Crescimento)",
+        "Gestão Multi-cidades e Aprovação de Restaurantes",
+        "Gerenciamento de Banners Promocionais da Home e Categorias Globais",
+        "Relatórios Financeiros de Repasse e Auditoria de Transações",
+        "Central de Suporte e Logs de Auditoria do Sistema"
+      ]
+    }
+  },
+  "colors": {
+    "primary": {
+      "hex": "#FF5722",
+      "hsl": "14 100% 57%",
+      "tailwind": "bg-orange-600 hover:bg-orange-700 text-white",
+      "usage": "Cor de ação primária, botões principais de CTA (Fazer Pedido, Confirmar, Adicionar), destaques de status ativo, badge de promoções e identidade Zupi."
+    },
+    "primary_light": {
+      "hex": "#FFF3E0",
+      "tailwind": "bg-orange-50 text-orange-700 border-orange-200",
+      "usage": "Fundo de badges selecionados, chips de categorias ativas, destaques de alertas leves."
+    },
+    "secondary_accent": {
+      "hex": "#10B981",
+      "tailwind": "bg-emerald-500 hover:bg-emerald-600 text-white",
+      "usage": "Status positivo (Loja Aberta, Pedido Entregue, Confirmação de Pagamento PIX, Botão WhatsApp)."
+    },
+    "dark_neutrals": {
+      "background": "#121212",
+      "card_bg": "#1E1E24",
+      "text_primary": "#1E293B",
+      "text_secondary": "#64748B",
+      "border": "#E2E8F0"
+    },
+    "light_neutrals": {
+      "bg_app": "#F8F9FA",
+      "surface": "#FFFFFF",
+      "muted": "#F1F5F9"
+    },
+    "rules": [
+      "NUNCA usar fundo 100% transparente em menus, dropdowns, modais ou headers fixos.",
+      "NUNCA usar azul Vercel padrão ou gradientes pesados de mais de 20% da tela.",
+      "Laranja é a cor de identidade e conversão; verde é a cor de confirmação/sucesso e delivery.",
+      "Manter contraste alto (WCAG AA) com texto escuro sobre fundos claros para garantir acessibilidade para usuários idosos e telas simples de smartphone."
+    ]
+  },
+  "typography": {
+    "heading_font": "Plus Jakarta Sans, Outfit, sans-serif",
+    "body_font": "Inter, DM Sans, sans-serif",
+    "sizes": {
+      "h1": "text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight",
+      "h2": "text-xl sm:text-2xl font-bold tracking-tight",
+      "h3": "text-lg sm:text-xl font-semibold",
+      "body": "text-sm sm:text-base font-normal leading-relaxed",
+      "caption": "text-xs font-medium text-slate-500"
+    },
+    "rules": [
+      "Proibido usar Inter para títulos principais. Usar Plus Jakarta Sans ou Outfit com pesos 700 ou 800 para transmitir proximidade e calor visual.",
+      "Manter botões de ação com texto grande (mínimo text-base/text-lg e font-bold) para fácil toque no celular."
+    ]
+  },
+  "layout_and_spacing": {
+    "touch_targets": "Mínimo 48px de altura e largura para todos os botões e áreas clicáveis.",
+    "border_radius": {
+      "cards": "rounded-2xl",
+      "buttons": "rounded-xl",
+      "badges": "rounded-full",
+      "modals": "rounded-t-3xl sm:rounded-2xl"
+    },
+    "spacing_scale": "Espaçamento generoso (p-4 no mobile, p-6 a p-8 em cards de dashboard) para evitar toques acidentais.",
+    "bottom_navigation": "Altura fixa de 64px com sombra superior e z-index 50 no PWA cliente.",
+    "grid_kanban": "Colunas flexíveis com h-[calc(100vh-140px)] e rolagem individual para a Central de Pedidos do Lojista."
+  },
+  "image_urls": {
+    "banners": [
+      {
+        "url": "https://images.unsplash.com/photo-1513104890138-7c749659a591?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "category": "hero_banner",
+        "description": "Pizza artesanal suculenta para banner de promoção"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1610440042657-612c34d95e9f?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "category": "hero_banner",
+        "description": "Hambúrguer artesanal com batatas para destaque da Home"
+      }
+    ],
+    "categories": [
+      {
+        "category": "Marmitas",
+        "url": "https://images.unsplash.com/photo-1653681472495-0a62d97e37fb?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Prato feito de comida brasileira caseira"
+      },
+      {
+        "category": "Lanches & Burgers",
+        "url": "https://images.unsplash.com/photo-1561758033-d89a9ad46330?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Burger gourmet com queijo derretido"
+      },
+      {
+        "category": "Pizzas",
+        "url": "https://images.unsplash.com/photo-1593504049359-74330189a345?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Fatia de pizza de queijo derretido"
+      },
+      {
+        "category": "Açaí & Doces",
+        "url": "https://images.unsplash.com/photo-1709114107937-6dec855d9ab5?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Sobremesas e açaí recheado"
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "Sabor da Terra - Marmitaria",
+        "url": "https://images.unsplash.com/photo-1653796149139-c9da8470e6b4?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Cozinha tradicional preparando marmitas fresquinhas"
+      },
+      {
+        "name": "Burgueria da Cidade",
+        "url": "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Hamburgueria artesanal local"
+      },
+      {
+        "name": "Pizzaria Bella Cidade",
+        "url": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Pizzaria no forno a lenha"
+      }
+    ],
+    "delivery_couriers": [
+      {
+        "url": "https://images.unsplash.com/photo-1782971814662-028cd9e840c3?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Entregador de moto na cidade com baú Zupi"
+      }
+    ]
+  },
+  "components_guidelines": {
+    "toast": "Utilizar a biblioteca 'sonner' de /app/frontend/src/components/ui/sonner.jsx para alertas de novos pedidos, atualizações de status e confirmações de ações.",
+    "modals": "Usar Sheet/Drawer no mobile PWA para seleção de adicionais de prato e resumo de carrinho para parecer um app nativo iOS/Android.",
+    "badges": "Badges de status claros (ex: 'Novo', 'Em Preparo', 'Saiu para Entrega', 'Entregue', 'Taxa Zupi R$ 2,00').",
+    "kanban": "Cards do Kanban no painel lojista com cronômetro de tempo de espera do pedido (verde até 10min, amarelo 10-25min, vermelho >25min).",
+    "testing_ids": "TODOS os botões, inputs, cards e itens de menu DEVEM conter o atributo data-testid em kebab-case (ex: data-testid='customer-home-search-input', data-testid='add-to-cart-button', data-testid='kanban-accept-order-button')."
+  },
+  "commercial_model_callout": {
+    "highlight": "Modelo Transparente ZUPI: Apenas R$ 2,00 por pedido entregue. Sem mensalidade, sem comissões abusivas.",
+    "ui_display": "Exibir a pill de transparência 'Taxa Zupi R$2,00' nos resumos financeiros do lojista e relatórios do admin."
+  },
+  "instructions_to_main_agent": [
+    "Construir os 3 ambientes integrados em React com visualização alternável ou rotas claras (Cliente PWA, Painel Lojista, Painel Admin Zupi).",
+    "No App do Cliente, priorizar a experiência Mobile (PWA) com barra inferior fixa de 5 abas (Início, Buscar, Pedidos, Favoritos, Perfil), lista de categorias com rolagens horizontais de chips e busca rápida por nome de prato ou restaurante.",
+    "No Painel do Lojista, implementar a Central de Pedidos estilo Kanban interativa com 4 colunas e botão de ação rápida para avançar status do pedido (com som simulado e toast via Sonner ao receber novo pedido).",
+    "Manter a identidade visual vibrante com Laranja (#FF5722) em botões principais e elementos de destaque, contrastado por fundos limpos (#F8F9FA) e cards brancos (#FFFFFF) com cantos arredondados (rounded-2xl).",
+    "Garantir que todos os componentes interativos possuam data-testid descritivos.",
+    "Incluir a chave PIX copia e cola com QR Code simulado no checkout para refletir a forma preferida de pagamento no Brasil."
+  ]
+}

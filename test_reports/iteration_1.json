@@ -1,0 +1,67 @@
+{
+  "summary": "Primeira rodada de testes do Zupi Delivery. Backend: 36/37 testes pytest passaram (1 skipped). Frontend: smoke test de home + login OK (city-selector, home-search-input, filtros, cards de restaurantes, redirect pós-login). Auth (register/login/me/logout/forgot/reset), fluxo de pedido e2e (cliente cria pedido delivery + pickup, cancel, reorder), cardápio do lojista, dashboard/finance/coupons do lojista, dashboard/users/cities/finance/settings do admin, segurança (401/403 e transição de status inválida) todos OK. Cookies HttpOnly Secure SameSite=None funcionando via preview URL. Bcrypt em $2b$. Rate-limit de login (5/15min) por identifier ativo. CORS restrito aos origins corretos.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "startup seed_demo",
+        "issue": "SEED INCOMPLETO EM PRODUÇÃO: banco tem 10 restaurantes/56 produtos/5 pedidos/8 cidades, mas coupons=0 e banners=0. Cupons demo ZUPI10/BEMVINDO5/TERRA15 e banners não existem. Endpoint /api/coupons/validate retorna 400 'Cupom inválido' para ZUPI10 e a home não mostra banners. Causa: seed_demo() está protegido por 'if restaurants.count>0: return', então uma execução anterior aparentemente falhou entre a criação de restaurantes/pedidos (linhas ~120-390) e a criação de cupons/banners (linhas 398-417), possivelmente por erro em favorites/notifications antes. Como não há re-seed idempotente, cupons/banners nunca serão criados sem intervenção manual.",
+        "priority": "CRITICAL"
+      },
+      {
+        "endpoint": "POST /api/auth/forgot-password (envio de e-mail)",
+        "issue": "Chamada ao integrations.emergentagent.com/api/v1/email/send retorna HTTP 422 'unknown'. Erro no log do backend: 'Password reset email failed: Client error 422 unknown'. Payload provavelmente incorreto para a API atual do proxy Emergent (talvez esperando 'from_email' obrigatório ou outra key). O endpoint /forgot-password ainda retorna 200 genérico (correto do ponto de vista de segurança), mas o e-mail nunca chega. Cliente não consegue resetar senha via UI.",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": [
+      {
+        "endpoint": "GET /api/restaurants",
+        "issue": "Testes de frontend/UI: cards de restaurantes fechados (Fechado agora) aparecem em cinza — visualmente correto, mas ao clicar em um card fechado o modal do produto ainda permite adicionar ao carrinho (deve ser bloqueado na UI). Não testado a fundo, apenas observação."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Home - banners",
+        "issue": "Home não exibe carrossel de banners porque a coleção db.banners está vazia (ver seed incompleto). Não é bug do front, mas afeta a UX descrita no problem_statement.",
+        "affected_selectors": ["[class*='banner']"]
+      },
+      {
+        "flow": "Checkout com cupom ZUPI10",
+        "issue": "Cliente não consegue aplicar ZUPI10 no carrinho — validate_coupon retorna 'Cupom inválido ou expirado' (coupon docs ausentes no DB). Bloqueia todo o fluxo de testes de cupom demo (ZUPI10/BEMVINDO5/TERRA15).",
+        "affected_selectors": ["[data-testid='coupon-input']", "[data-testid='apply-coupon-button']"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_zupi_api.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "CRÍTICO: Popular coupons e banners no DB. Opção A rápida: rodar novamente seed_demo() após limpar collections (não idempotente); Opção B recomendada: refatorar seed_demo para ser idempotente por collection (checar cada coleção individualmente com upsert por id/code) e envolver em try/except com log — assim seed parcial no futuro é recuperável.",
+    "CRÍTICO: Corrigir integração de e-mail de reset (integrations.emergentagent.com retorna 422). Verificar payload esperado (from_email obrigatório? campo 'from_name' talvez precise ser 'sender'?) e adicionar teste de fumaça no startup ou health.",
+    "MENOR: Adicionar validação no frontend para desabilitar 'Adicionar ao carrinho' quando restaurante estiver 'Fechado agora'.",
+    "MENOR: seed_demo linhas 43-44 (full_hours) — considerar variar horários de plantão/fim de semana; hoje todos os dias 11-14 e 18-23, cliente médio pode achar limitante nos testes iniciais."
+  ],
+  "critical_code_review_comments": [
+    "seed_demo() não é idempotente e depende de um único check (contagem de restaurantes). Se qualquer passo posterior falhar, o sistema fica em estado parcial permanentemente — como o observado agora.",
+    "routers_auth.py:23 EMAIL_BASE_URL default é https://integrations.emergentagent.com, mas há INTEGRATION_PROXY_URL no env vazio. Verificar se a rota correta é '/api/v1/email/send' (proxy retorna 422). Considerar log do body de erro para debug.",
+    "server.py:30 CORS_ORIGINS='*' no .env é ignorado — hardcoded para FRONTEND_URL e localhost:3000. Correto para produção mas ler CORS_ORIGINS do env seria melhor.",
+    "routers_auth.py:157 refresh set_cookie chama diretamente response.set_cookie ao invés de reutilizar set_auth_cookies — pequena duplicação.",
+    "seed.py:64 seed_admin: se hash não bate mas admin não é bloqueado, atualiza senha; se admin foi bloqueado por engano, permanece bloqueado (a linha faz 'blocked': False no update, então OK).",
+    "utils.py:63 is_restaurant_open usa <=/>=: se close == open (janela 0), retorna True para exatamente esse minuto. Não crítico."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_zupi_api.py"
+  ],
+  "success_rate": {"backend": "97% (36/37 pytest, 1 skip por seed ausente)", "frontend": "smoke test OK, não testado fluxo completo de checkout via UI"},
+  "test_credentials": "Já existentes em /app/memory/test_credentials.md — admin/lojista/cliente funcionando (verificado via login).",
+  "seed_data_creation": "Nenhum dado seed adicional criado — o problema principal identificado é justamente que o seed original não completou. Recomenda-se recriar/completar o seed via main agent.",
+  "retest_needed": true,
+  "main_agent_can_self_test": false,
+  "context_for_next_testing_agent": "Backend está bom no core. Foco do próximo teste: (1) validar reseed idempotente de coupons/banners, (2) testar checkout completo E2E via UI Playwright em restaurante aberto (Padaria Pão Quente em Pradópolis, Mercadinho Central em Araraquara — horário 07-22 SP), (3) validar Kanban do lojista com aceitar→preparar→pronto→entregar, (4) validar suporte cliente→admin round-trip. Para autenticação via requests em testes de API, é OBRIGATÓRIO usar o preview URL (https) porque cookies são Secure — localhost:8001 não recebe cookies de volta. Também é necessário User-Agent de browser porque o Cloudflare do preview filtra o UA default do python-requests. Ambas as correções já estão no test_zupi_api.py.",
+  "rca of the issue": "SEED INCOMPLETO: db.restaurants tem 10 documents, db.orders 5, db.cities 8, mas db.coupons=0 e db.banners=0. O seed_demo() em /app/backend/seed.py:69 aborta cedo se restaurants.count>0. Isso significa que em uma execução anterior o seed rodou parcialmente (chegou até line ~391 com favorites/notifications) mas não chegou às inserções de coupons (line 398) e banners (line 410). Provável causa: erro transitório de rede/DB ou reload de código do WatchFiles interrompendo o startup. Fix recomendado: refatorar seed_demo() com múltiplos checkpoints (verificar cada coleção individualmente e criar apenas as faltantes), ou envolver todo o seed em try/except com log detalhado. Mitigação imediata: script one-shot para inserir cupons e banners nas coleções vazias. Reprodução: `python -c \"from dotenv import load_dotenv; load_dotenv(); import asyncio; from database import db; asyncio.run(print(await db.coupons.count_documents({})))\"` retorna 0."
+}

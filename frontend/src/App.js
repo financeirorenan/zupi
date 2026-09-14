@@ -24,6 +24,7 @@ import MerchantDashboard from "@/pages/merchant/MerchantDashboard";
 import MerchantOrders from "@/pages/merchant/MerchantOrders";
 import MerchantMenu from "@/pages/merchant/MerchantMenu";
 import MerchantCoupons from "@/pages/merchant/MerchantCoupons";
+import MerchantLogistics from "@/pages/merchant/MerchantLogistics";
 import MerchantFinance from "@/pages/merchant/MerchantFinance";
 import MerchantReviews from "@/pages/merchant/MerchantReviews";
 import MerchantSettings from "@/pages/merchant/MerchantSettings";
@@ -61,6 +62,7 @@ function App() {
               <Route path="/lojista" element={<ProtectedRoute roles={["restaurant"]}><MerchantDashboard /></ProtectedRoute>} />
               <Route path="/lojista/pedidos" element={<ProtectedRoute roles={["restaurant"]}><MerchantOrders /></ProtectedRoute>} />
               <Route path="/lojista/cardapio" element={<ProtectedRoute roles={["restaurant"]}><MerchantMenu /></ProtectedRoute>} />
+              <Route path="/lojista/logistica" element={<ProtectedRoute roles={["restaurant"]}><MerchantLogistics /></ProtectedRoute>} />
               <Route path="/lojista/cupons" element={<ProtectedRoute roles={["restaurant"]}><MerchantCoupons /></ProtectedRoute>} />
               <Route path="/lojista/financeiro" element={<ProtectedRoute roles={["restaurant"]}><MerchantFinance /></ProtectedRoute>} />
               <Route path="/lojista/avaliacoes" element={<ProtectedRoute roles={["restaurant"]}><MerchantReviews /></ProtectedRoute>} />

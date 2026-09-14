@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { MERCHANT_MENU } from "@/pages/menus";
 import { Loading } from "@/components/States";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import ImageUpload from "@/components/ImageUpload";
 import { api, apiError } from "@/lib/api";
 import { toast } from "sonner";
-import { Plus, Trash2, PauseCircle, PlayCircle } from "lucide-react";
+import { PauseCircle, PlayCircle } from "lucide-react";
 
 const DAYS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 const EMPTY = { name: "", description: "", category: "Outros", phone: "", logo: "", cover: "", city: "", state: "SP", address: { street: "", number: "", district: "", cep: "" }, delivery_fee: "", min_order: "", prep_time: 40, payment_methods: ["pix", "cash", "card_machine"], delivery_zones: [], hours: {} };
@@ -104,7 +106,10 @@ export default function MerchantSettings() {
             <Input data-testid="rest-delivery-fee" type="number" step="0.5" min="0" placeholder="Taxa de entrega padrão R$" value={form.delivery_fee} onChange={(e) => setForm({ ...form, delivery_fee: e.target.value })} className="h-12 rounded-xl" />
             <Input data-testid="rest-min-order" type="number" step="0.5" min="0" placeholder="Pedido mínimo R$" value={form.min_order} onChange={(e) => setForm({ ...form, min_order: e.target.value })} className="h-12 rounded-xl" />
           </div>
-          <Input data-testid="rest-cover" placeholder="URL da foto de capa" value={form.cover} onChange={(e) => setForm({ ...form, cover: e.target.value })} className="h-12 rounded-xl" />
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2"><ImageUpload testid="rest-cover-upload" label="Foto de capa" value={form.cover} onChange={(url) => setForm({ ...form, cover: url })} /></div>
+            <ImageUpload testid="rest-logo-upload" label="Logo" aspect="aspect-square" value={form.logo} onChange={(url) => setForm({ ...form, logo: url })} />
+          </div>
           <div className="grid grid-cols-2 gap-2">
             <Input data-testid="rest-street" placeholder="Rua" value={form.address?.street || ""} onChange={(e) => setForm({ ...form, address: { ...form.address, street: e.target.value } })} className="h-12 rounded-xl" />
             <Input data-testid="rest-number" placeholder="Número" value={form.address?.number || ""} onChange={(e) => setForm({ ...form, address: { ...form.address, number: e.target.value } })} className="h-12 rounded-xl" />
@@ -113,19 +118,9 @@ export default function MerchantSettings() {
           </div>
         </section>
 
-        <section className="bg-white rounded-2xl border p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-display font-bold text-slate-900">Área de entrega (taxa por bairro)</h3>
-            <button data-testid="add-zone-button" onClick={() => setForm({ ...form, delivery_zones: [...form.delivery_zones, { district: "", fee: "" }] })} className="text-xs font-bold text-orange-600 flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> Bairro</button>
-          </div>
-          {form.delivery_zones.length === 0 && <p className="text-xs text-slate-400">Sem zonas: todos pagam a taxa padrão.</p>}
-          {form.delivery_zones.map((z, i) => (
-            <div key={i} className="flex gap-2">
-              <Input placeholder="Bairro" value={z.district} onChange={(e) => { const dz = [...form.delivery_zones]; dz[i] = { ...z, district: e.target.value }; setForm({ ...form, delivery_zones: dz }); }} className="h-11 rounded-xl flex-1" data-testid={`zone-district-${i}`} />
-              <Input placeholder="Taxa R$" type="number" step="0.5" min="0" value={z.fee} onChange={(e) => { const dz = [...form.delivery_zones]; dz[i] = { ...z, fee: e.target.value }; setForm({ ...form, delivery_zones: dz }); }} className="h-11 rounded-xl w-28" data-testid={`zone-fee-${i}`} />
-              <button onClick={() => setForm({ ...form, delivery_zones: form.delivery_zones.filter((_, x) => x !== i) })} className="text-slate-300 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
-            </div>
-          ))}
+        <section className="bg-white rounded-2xl border p-5">
+          <h3 className="font-display font-bold text-slate-900">Área de entrega e motoboys</h3>
+          <p className="text-sm text-slate-500 mt-1">A taxa por bairro e o cadastro de motoboys ficam no menu <Link to="/lojista/logistica" data-testid="go-logistics-link" className="text-orange-600 font-bold">Logística</Link>.</p>
         </section>
 
         <section className="bg-white rounded-2xl border p-5 space-y-3">

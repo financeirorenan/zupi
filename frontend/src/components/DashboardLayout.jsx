@@ -1,8 +1,9 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { LogOut, Menu as MenuIcon } from "lucide-react";
-import { useState } from "react";
+import { NavLink, useNavigate, Link } from "react-router-dom";
+import { LogOut, Menu as MenuIcon, Store } from "lucide-react";
+import { useState, useEffect } from "react";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/context/AuthContext";
+import { api } from "@/lib/api";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 function MenuList({ menu, onNavigate }) {
@@ -32,12 +33,21 @@ function MenuList({ menu, onNavigate }) {
 const slug = (label) => label.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, "-");
 
 function TopLayout({ menu, title, subtitle, actions, children, user, doLogout }) {
+  const [restId, setRestId] = useState(null);
+  useEffect(() => {
+    api.get("/merchant/restaurant").then((r) => setRestId(r.data.id)).catch(() => {});
+  }, []);
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col" data-testid="merchant-top-layout">
       <header className="sticky top-0 z-40 bg-[#121212] text-white shadow-lg">
         <div className="px-4 sm:px-6 h-16 flex items-center gap-4">
           <Logo light />
           <div className="flex-1" />
+          {restId && (
+            <Link to={`/restaurante/${restId}`} target="_blank" data-testid="view-store-button" className="h-11 px-4 flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-sm font-semibold transition-colors">
+              <Store className="w-4 h-4" /> <span className="hidden sm:inline">Ver loja no marketplace</span><span className="sm:hidden">Ver loja</span>
+            </Link>
+          )}
           <div className="hidden sm:block text-right min-w-0">
             <p className="text-sm font-bold truncate">{user?.name}</p>
             <p className="text-xs text-slate-400 truncate">{user?.email}</p>

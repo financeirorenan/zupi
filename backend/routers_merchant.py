@@ -128,6 +128,7 @@ async def merchant_orders(status: str | None = None, user=Depends(merchant)):
 class StatusIn(BaseModel):
     status: str
     prep_time: int | None = None
+    courier_id: str | None = None
 
 
 @router.post("/orders/{oid}/status")
@@ -141,6 +142,11 @@ async def set_order_status(oid: str, data: StatusIn, user=Depends(merchant)):
     updates = {"status": data.status}
     if data.prep_time:
         updates["prep_time"] = data.prep_time
+    if data.courier_id:
+        courier = await db.couriers.find_one({"id": data.courier_id, "restaurant_id": r["id"]}, {"_id": 0})
+        if courier:
+            updates["courier_id"] = courier["id"]
+            updates["courier_name"] = courier["name"]
     await db.orders.update_one(
         {"id": oid},
         {"$set": updates, "$push": {"status_history": {"status": data.status, "at": now_iso(), "by": "restaurant"}}},
@@ -335,12 +341,21 @@ async def finance(days: int = 30, user=Depends(merchant)):
         d["gross"] = round(d["gross"] + o["subtotal"], 2)
         d["zupi_fee"] = round(d["zupi_fee"] + o.get("zupi_fee", 0), 2)
     settings = await get_settings()
+    couriers = await db.couriers.find({"restaurant_id": r["id"], "active": True}, {"_id": 0}).to_list(100)
+    courier_daily = round(sum(c.get("daily_rate", 0) for c in couriers), 2)
+    courier_cost = round(courier_daily * days, 2)
+    deliveries = [o for o in valid if o.get("delivery_type") == "delivery"]
     return {
         "period_days": days, "platform_fee": settings.get("platform_fee", 2.0),
         "gross": gross, "discounts": discounts, "delivery_fees": delivery_fees,
         "zupi_fees": zupi_fees, "net": round(gross - discounts + delivery_fees - zupi_fees, 2),
         "orders": len(valid), "by_day": sorted(by_day.values(), key=lambda x: x["date"]),
         "transactions": txs[:100],
+        "logistics": {
+            "couriers": len(couriers), "courier_daily": courier_daily, "courier_cost": courier_cost,
+            "deliveries": len(deliveries), "delivery_fees": delivery_fees,
+            "balance": round(delivery_fees - courier_cost, 2),
+        },
     }
 
 

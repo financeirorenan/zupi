@@ -12,7 +12,10 @@ from routers_public import router as public_router
 from routers_customer import router as customer_router
 from routers_merchant import router as merchant_router
 from routers_admin import router as admin_router
+from routers_uploads import router as uploads_router
+from routers_logistics import router as logistics_router
 from seed import seed_admin, seed_demo
+from storage import init_storage
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -24,6 +27,8 @@ app.include_router(public_router)
 app.include_router(customer_router)
 app.include_router(merchant_router)
 app.include_router(admin_router)
+app.include_router(uploads_router)
+app.include_router(logistics_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,6 +63,14 @@ async def startup():
     await db.coupons.create_index("code", unique=True)
     await seed_admin(db)
     await seed_demo(db)
+    await db.couriers.create_index("restaurant_id")
+    await db.files.create_index("storage_path")
+    await db.districts.create_index("city", unique=True)
+    try:
+        await init_storage()
+        logger.info("Storage inicializado")
+    except Exception as e:
+        logger.error(f"Storage init falhou: {e}")
     logger.info("Zupi Delivery API pronta")
 
 

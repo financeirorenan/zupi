@@ -48,6 +48,18 @@ export default function MerchantFinance() {
             <StatCard icon={Wallet} label="Pedidos" value={data.orders} testid="fin-orders" />
           </div>
 
+          {data.logistics && (
+            <div className="bg-white rounded-2xl border p-5" data-testid="finance-logistics-card">
+              <h3 className="font-display font-bold text-slate-900 mb-1">Logística — motoboys da casa</h3>
+              <p className="text-xs text-slate-500 mb-4">{data.logistics.couriers} motoboy(s) ativo(s) • diária total {fmtBRL(data.logistics.courier_daily)} • {data.logistics.deliveries} entregas no período</p>
+              <div className="grid grid-cols-3 gap-3">
+                <StatCard icon={Bike} label="Frete cobrado dos clientes" value={fmtBRL(data.logistics.delivery_fees)} testid="log-fees" />
+                <StatCard icon={Wallet} label={`Custo diárias (${data.period_days} dias)`} value={fmtBRL(data.logistics.courier_cost)} testid="log-cost" />
+                <StatCard icon={TrendingUp} label="Saldo da entrega" value={fmtBRL(data.logistics.balance)} sub={data.logistics.balance >= 0 ? "Frete cobre as diárias" : "Diárias acima do frete"} testid="log-balance" />
+              </div>
+            </div>
+          )}
+
           <div className="bg-white rounded-2xl border p-5">
             <h3 className="font-display font-bold text-slate-900 mb-4">Vendas por dia</h3>
             <ResponsiveContainer width="100%" height={240}>

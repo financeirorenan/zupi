@@ -5,6 +5,7 @@ import CustomerLayout from "@/components/CustomerLayout";
 import RestaurantCard from "@/components/RestaurantCard";
 import { CardSkeleton } from "@/components/States";
 import { useCity } from "@/context/CityContext";
+import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 
 const SORTS = [
@@ -16,6 +17,7 @@ const SORTS = [
 
 export default function Home() {
   const { city } = useCity();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [banners, setBanners] = useState([]);
@@ -23,6 +25,10 @@ export default function Home() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState({ open: false, free: false, sort: "rating" });
   const [showSort, setShowSort] = useState(false);
+
+  useEffect(() => {
+    if (user?.role === "restaurant") navigate("/lojista", { replace: true });
+  }, [user, navigate]);
 
   useEffect(() => {
     api.get("/categories").then((r) => setCategories(r.data)).catch(() => {});

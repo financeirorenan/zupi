@@ -22,8 +22,8 @@ export default function Login() {
     try {
       const user = await login(email, password);
       const next = params.get("next");
-      if (next) navigate(next);
-      else if (user.role === "restaurant") navigate("/lojista");
+      if (user.role === "restaurant") navigate(next?.startsWith("/lojista") ? next : "/lojista");
+      else if (next) navigate(next);
       else if (user.role === "admin") navigate("/admin");
       else navigate("/");
     } catch (err) {

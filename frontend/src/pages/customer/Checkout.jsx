@@ -33,6 +33,11 @@ export default function Checkout() {
   const [changeFor, setChangeFor] = useState("");
   const [discount, setDiscount] = useState(0);
   const [restaurant, setRestaurant] = useState(null);
+  const [districts, setDistricts] = useState([]);
+  useEffect(() => {
+    if (!restaurant?.city) return;
+    api.get(`/cities/${encodeURIComponent(restaurant.city)}/districts`).then((r) => setDistricts(r.data)).catch(() => {});
+  }, [restaurant?.city]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -163,7 +168,8 @@ export default function Checkout() {
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <Input data-testid="addr-street" placeholder="Rua *" value={newAddr.street} onChange={(e) => setNewAddr({ ...newAddr, street: e.target.value })} className="col-span-2 h-11 rounded-xl" />
                     <Input data-testid="addr-number" placeholder="Número" value={newAddr.number} onChange={(e) => setNewAddr({ ...newAddr, number: e.target.value })} className="h-11 rounded-xl" />
-                    <Input data-testid="addr-district" placeholder="Bairro *" value={newAddr.district} onChange={(e) => setNewAddr({ ...newAddr, district: e.target.value })} className="h-11 rounded-xl" />
+                    <Input data-testid="addr-district" list="district-options" placeholder="Bairro *" value={newAddr.district} onChange={(e) => setNewAddr({ ...newAddr, district: e.target.value })} className="h-11 rounded-xl" />
+                    <datalist id="district-options">{districts.map((d) => <option key={d} value={d} />)}</datalist>
                     <Input data-testid="addr-city" placeholder="Cidade *" value={newAddr.city} onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })} className="h-11 rounded-xl" />
                     <Input data-testid="addr-cep" placeholder="CEP" value={newAddr.cep} onChange={(e) => setNewAddr({ ...newAddr, cep: e.target.value })} className="h-11 rounded-xl" />
                     <Input data-testid="addr-complement" placeholder="Complemento" value={newAddr.complement} onChange={(e) => setNewAddr({ ...newAddr, complement: e.target.value })} className="col-span-2 h-11 rounded-xl" />

@@ -1,9 +1,10 @@
-import { LayoutDashboard, ClipboardList, UtensilsCrossed, Ticket, Wallet, Star, Settings, Store, Users, MapPin, Megaphone } from "lucide-react";
+import { LayoutDashboard, ClipboardList, UtensilsCrossed, Ticket, Wallet, Star, Settings, Store, Users, MapPin, Megaphone, Bike } from "lucide-react";
 
 export const MERCHANT_MENU = [
   { to: "/lojista", icon: LayoutDashboard, label: "Dashboard", end: true },
   { to: "/lojista/pedidos", icon: ClipboardList, label: "Pedidos" },
   { to: "/lojista/cardapio", icon: UtensilsCrossed, label: "Cardápio" },
+  { to: "/lojista/logistica", icon: Bike, label: "Logística" },
   { to: "/lojista/cupons", icon: Ticket, label: "Cupons" },
   { to: "/lojista/financeiro", icon: Wallet, label: "Financeiro" },
   { to: "/lojista/avaliacoes", icon: Star, label: "Avaliações" },

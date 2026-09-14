@@ -101,3 +101,6 @@ html {
 
 .scrollbar-none{scrollbar-width:none}
 .scrollbar-none::-webkit-scrollbar{display:none}
+
+@keyframes new-order-blink{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0);border-color:#e2e8f0}50%{box-shadow:0 0 0 4px rgba(245,158,11,.5);border-color:#f59e0b;background:#fffbeb}}
+.new-order-blink{animation:new-order-blink 1s ease-in-out infinite}

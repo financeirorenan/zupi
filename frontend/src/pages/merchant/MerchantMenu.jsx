@@ -5,6 +5,7 @@ import { Loading } from "@/components/States";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import ImageUpload from "@/components/ImageUpload";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { api, fmtBRL, apiError } from "@/lib/api";
 import { toast } from "sonner";
@@ -128,7 +129,7 @@ export default function MerchantMenu() {
                 <Input data-testid="product-price-input" type="number" step="0.01" min="0" placeholder="Preço *" value={prodForm.price} onChange={(e) => setProdForm({ ...prodForm, price: e.target.value })} className="h-12 rounded-xl" />
                 <Input data-testid="product-promo-input" type="number" step="0.01" min="0" placeholder="Preço promo (opcional)" value={prodForm.promo_price} onChange={(e) => setProdForm({ ...prodForm, promo_price: e.target.value })} className="h-12 rounded-xl" />
               </div>
-              <Input data-testid="product-image-input" placeholder="URL da imagem (opcional)" value={prodForm.image} onChange={(e) => setProdForm({ ...prodForm, image: e.target.value })} className="h-12 rounded-xl" />
+              <ImageUpload testid="product-image-upload" label="Foto do produto (opcional)" value={prodForm.image} onChange={(url) => setProdForm({ ...prodForm, image: url })} />
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-bold text-slate-700">Adicionais</p>

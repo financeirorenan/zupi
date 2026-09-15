@@ -55,3 +55,6 @@ Ver `/app/memory/test_credentials.md` (admin: financeirorenanuk@gmail.com / Zupi
 - Impressão de pedidos: cupom 80mm via iframe (lib/printOrder.js); impressão automática ao chegar pedido novo com toggle "Impressão automática / Sem impressão (KDS)" (restaurant.auto_print, POST /api/merchant/auto-print); botão imprimir por ticket. Impressão silenciosa requer Chrome em modo kiosk (--kiosk-printing).
 - Notificações: sino compartilhado (NotificationsBell) nos painéis admin/lojista com polling 30s; novo lead do site notifica todos os admins.
 - Reset de senha testado e2e: envio real via proxy de e-mail (202 Accepted), token de uso único, expiração, login com nova senha OK.
+- Relatório de motoboys (Logística): entregas concluídas, em rota, diária no período, custo por entrega, frete cobrado e saldo; períodos hoje/7/30 dias. GET /api/merchant/logistics/couriers/report?days=.
+- Via da cozinha: cupom só com itens/adicionais/observações (fonte grande). Botão por ticket + toggle "2ª via cozinha" na impressão automática (restaurant.kitchen_copy).
+- WhatsApp ao cliente: ícone por ticket abre wa.me com mensagem pronta conforme status do pedido (aceito, em preparo, pronto, saiu p/ entrega, entregue, cancelado).

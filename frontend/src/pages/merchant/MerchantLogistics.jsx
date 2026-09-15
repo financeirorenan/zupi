@@ -8,7 +8,62 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { api, apiError, fmtBRL } from "@/lib/api";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Bike, MapPin, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Bike, MapPin, Search, BarChart3 } from "lucide-react";
+
+function CourierReport() {
+  const [days, setDays] = useState(1);
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    setData(null);
+    api.get("/merchant/logistics/couriers/report", { params: { days } }).then((r) => setData(r.data)).catch(() => setData({ couriers: [] }));
+  }, [days]);
+  return (
+    <section className="bg-white rounded-2xl border p-5 space-y-4 lg:col-span-2" data-testid="courier-report">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex-1">
+          <h3 className="font-display font-bold text-slate-900 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-orange-600" /> Relatório de motoboys</h3>
+          <p className="text-xs text-slate-500">Entregas concluídas por motoboy e quanto a diária custa por entrega.</p>
+        </div>
+        <div className="flex gap-1.5 bg-slate-50 border rounded-xl p-1">
+          {[{ d: 1, l: "Hoje" }, { d: 7, l: "7 dias" }, { d: 30, l: "30 dias" }].map((p) => (
+            <button key={p.d} data-testid={`report-period-${p.d}`} onClick={() => setDays(p.d)} className={`h-9 px-3 rounded-lg text-xs font-bold ${days === p.d ? "bg-orange-600 text-white" : "text-slate-500"}`}>{p.l}</button>
+          ))}
+        </div>
+      </div>
+      {!data ? <Loading /> : data.couriers.length === 0 ? <p className="text-sm text-slate-400 text-center py-6">Cadastre motoboys para ver o relatório.</p> : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]" data-testid="courier-report-table">
+            <thead>
+              <tr className="text-left text-xs text-slate-400 border-b">
+                <th className="py-2 pr-3">Motoboy</th><th className="py-2 pr-3 text-right">Entregas</th><th className="py-2 pr-3 text-right">Em rota</th>
+                <th className="py-2 pr-3 text-right">Diária{days > 1 ? ` (${days}d)` : ""}</th><th className="py-2 pr-3 text-right">Custo / entrega</th><th className="py-2 pr-3 text-right">Frete cobrado</th><th className="py-2 text-right">Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.couriers.map((c) => (
+                <tr key={c.id} className={`border-b last:border-0 ${c.active ? "" : "opacity-50"}`} data-testid={`report-row-${c.id}`}>
+                  <td className="py-2.5 pr-3 font-bold text-slate-900">{c.name}{!c.active && <span className="ml-2 text-[10px] font-semibold text-slate-400">inativo</span>}</td>
+                  <td className="py-2.5 pr-3 text-right font-display font-extrabold text-lg" data-testid={`report-deliveries-${c.id}`}>{c.deliveries}</td>
+                  <td className="py-2.5 pr-3 text-right text-slate-500">{c.in_progress}</td>
+                  <td className="py-2.5 pr-3 text-right">{fmtBRL(c.daily_total)}</td>
+                  <td className="py-2.5 pr-3 text-right font-bold text-orange-600" data-testid={`report-cpd-${c.id}`}>{c.cost_per_delivery == null ? "—" : fmtBRL(c.cost_per_delivery)}</td>
+                  <td className="py-2.5 pr-3 text-right">{fmtBRL(c.delivery_fees)}</td>
+                  <td className={`py-2.5 text-right font-bold ${c.balance >= 0 ? "text-emerald-600" : "text-red-500"}`}>{fmtBRL(c.balance)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="text-xs text-slate-500">
+                <td className="pt-3 font-bold">Total</td><td className="pt-3 text-right font-bold text-slate-900">{data.total_deliveries}</td><td /><td className="pt-3 text-right">{fmtBRL(data.total_daily)}</td>
+                <td className="pt-3 text-right font-bold text-orange-600">{data.total_deliveries ? fmtBRL(data.total_daily / data.total_deliveries) : "—"}</td><td colSpan={2} />
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
 
 const EMPTY_COURIER = { name: "", phone: "", vehicle: "moto", daily_rate: "", active: true };
 
@@ -165,6 +220,8 @@ export default function MerchantLogistics() {
           </div>
           <Button data-testid="zones-save-button" onClick={saveZones} disabled={saving} className="w-full h-12 rounded-xl font-bold">{saving ? "Salvando..." : "Salvar taxas de entrega"}</Button>
         </section>
+
+        <CourierReport />
       </div>
 
       <Dialog open={!!form} onOpenChange={(v) => !v && setForm(null)}>

@@ -47,14 +47,48 @@ ${o.notes ? `<hr/><div class="obs">OBS: ${esc(o.notes)}</div>` : ""}
 </body></html>`;
 }
 
-export function printOrder(o, restaurantName) {
+export function kitchenHtml(o, restaurantName = "") {
+  const dt = new Date(o.created_at).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const items = o.items.map((i) => `
+    <div class="it"><span class="q">${i.qty}x</span> <span class="n">${esc(i.name)}</span>
+    ${i.addons?.length ? `<div class="sub">+ ${esc(i.addons.map((a) => a.name).join(", "))}</div>` : ""}
+    ${i.notes ? `<div class="obs">OBS: ${esc(i.notes)}</div>` : ""}</div>`).join("");
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Cozinha ${esc(o.code)}</title>
+<style>
+@page{margin:4mm;size:80mm auto}
+body{font-family:'Courier New',monospace;width:72mm;margin:0;color:#000}
+h1{font-size:26px;margin:0;text-align:center}.c{text-align:center;font-size:12px}
+hr{border:0;border-top:2px dashed #000;margin:6px 0}
+.it{font-size:17px;margin:6px 0}.q{font-weight:bold;font-size:20px}.n{font-weight:bold}
+.sub{font-size:14px;margin-left:30px}.obs{font-size:15px;font-weight:bold;margin-left:30px;border:2px solid #000;padding:2px 4px;display:inline-block;margin-top:2px}
+.box{border:3px solid #000;padding:4px;text-align:center;font-weight:bold;font-size:16px;margin:6px 0}
+</style></head><body>
+<div class="c">COZINHA — ${esc(restaurantName || "Zupi")}</div>
+<h1>${esc(o.code)}</h1>
+<div class="c">${dt} • ${esc(o.customer_name)}</div>
+<div class="box">${o.delivery_type === "pickup" ? "RETIRADA" : "ENTREGA"}</div>
+<hr/>${items}<hr/>
+${o.notes ? `<div class="obs">OBS GERAL: ${esc(o.notes)}</div><hr/>` : ""}
+<div class="c">${o.items.reduce((s, i) => s + i.qty, 0)} itens</div>
+</body></html>`;
+}
+
+function printHtml(html) {
   const frame = document.createElement("iframe");
   frame.setAttribute("data-testid", "print-frame");
   frame.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
   document.body.appendChild(frame);
   const doc = frame.contentWindow.document;
-  doc.open(); doc.write(receiptHtml(o, restaurantName)); doc.close();
+  doc.open(); doc.write(html); doc.close();
   const done = () => setTimeout(() => frame.remove(), 2000);
   frame.contentWindow.onafterprint = done;
   setTimeout(() => { try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch { done(); } }, 150);
+}
+
+export function printOrder(o, restaurantName) {
+  printHtml(receiptHtml(o, restaurantName));
+}
+
+export function printKitchen(o, restaurantName) {
+  printHtml(kitchenHtml(o, restaurantName));
 }

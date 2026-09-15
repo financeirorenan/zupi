@@ -80,6 +80,33 @@ async def save_zones(data: ZonesIn, user=Depends(merchant)):
     return {"delivery_fee": data.delivery_fee, "delivery_zones": zones}
 
 
+@router.get("/merchant/logistics/couriers/report")
+async def couriers_report(days: int = 1, user=Depends(merchant)):
+    r = await get_merchant_restaurant(user)
+    days = min(max(days, 1), 90)
+    from datetime import datetime, timezone, timedelta
+    since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    couriers = await db.couriers.find({"restaurant_id": r["id"]}, {"_id": 0}).to_list(100)
+    orders = await db.orders.find({"restaurant_id": r["id"], "created_at": {"$gte": since}, "courier_id": {"$ne": None},
+                                   "status": {"$in": ["OUT_FOR_DELIVERY", "DELIVERED"]}}, {"_id": 0}).to_list(5000)
+    rows = []
+    for c in couriers:
+        mine = [o for o in orders if o.get("courier_id") == c["id"]]
+        delivered = [o for o in mine if o["status"] == "DELIVERED"]
+        n = len(delivered)
+        daily_total = round(c.get("daily_rate", 0) * days, 2)
+        fees = round(sum(o.get("delivery_fee", 0) for o in delivered), 2)
+        rows.append({
+            "id": c["id"], "name": c["name"], "active": c.get("active", True), "daily_rate": c.get("daily_rate", 0),
+            "deliveries": n, "in_progress": len(mine) - n, "daily_total": daily_total,
+            "cost_per_delivery": round(daily_total / n, 2) if n else None,
+            "delivery_fees": fees, "balance": round(fees - daily_total, 2),
+        })
+    rows.sort(key=lambda x: -x["deliveries"])
+    return {"period_days": days, "since": since, "couriers": rows,
+            "total_deliveries": sum(x["deliveries"] for x in rows), "total_daily": round(sum(x["daily_total"] for x in rows if x["active"]), 2)}
+
+
 class CourierIn(BaseModel):
     name: str = Field(min_length=2, max_length=80)
     phone: str = ""

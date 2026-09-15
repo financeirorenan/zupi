@@ -56,8 +56,8 @@ class ProfileIn(BaseModel):
     phone: str | None = None
 
 
-async def send_password_reset_email(to_email: str, token: str) -> bool:
-    base = os.environ.get("FRONTEND_URL", "").rstrip("/")
+async def send_password_reset_email(to_email: str, token: str, base: str | None = None) -> bool:
+    base = (base or os.environ.get("FRONTEND_URL", "")).rstrip("/")
     link = f"{base}/reset-password?token={token}"
     if not EMAIL_KEY or EMAIL_KEY.startswith("{") or not base.startswith("https://"):
         if urlparse(base).hostname in ("localhost", "127.0.0.1", "::1"):
@@ -194,7 +194,9 @@ async def forgot_password(data: ForgotIn, request: Request, background_tasks: Ba
         "user_id": user["id"], "email": email, "used": False,
         "expires_at": (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat(),
     })
-    background_tasks.add_task(send_password_reset_email, user["email"], token)
+    origin = request.headers.get("origin") or ""
+    base = origin if origin.startswith("https://") else None
+    background_tasks.add_task(send_password_reset_email, user["email"], token, base)
     return generic
 
 

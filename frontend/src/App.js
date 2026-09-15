@@ -1,5 +1,7 @@
 import "@/index.css";
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Loading } from "@/components/States";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
@@ -20,27 +22,27 @@ import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import ResetPassword from "@/pages/auth/ResetPassword";
 
-import MerchantDashboard from "@/pages/merchant/MerchantDashboard";
-import MerchantOrders from "@/pages/merchant/MerchantOrders";
-import MerchantMenu from "@/pages/merchant/MerchantMenu";
-import MerchantCoupons from "@/pages/merchant/MerchantCoupons";
-import MerchantLogistics from "@/pages/merchant/MerchantLogistics";
-import MerchantFinance from "@/pages/merchant/MerchantFinance";
-import MerchantReviews from "@/pages/merchant/MerchantReviews";
-import MerchantSettings from "@/pages/merchant/MerchantSettings";
-import MerchantIntegrations from "@/pages/merchant/MerchantIntegrations";
-import Landing from "@/pages/site/Landing";
-import DevDocs from "@/pages/site/DevDocs";
+const MerchantDashboard = lazy(() => import("@/pages/merchant/MerchantDashboard"));
+const MerchantOrders = lazy(() => import("@/pages/merchant/MerchantOrders"));
+const MerchantMenu = lazy(() => import("@/pages/merchant/MerchantMenu"));
+const MerchantCoupons = lazy(() => import("@/pages/merchant/MerchantCoupons"));
+const MerchantLogistics = lazy(() => import("@/pages/merchant/MerchantLogistics"));
+const MerchantFinance = lazy(() => import("@/pages/merchant/MerchantFinance"));
+const MerchantReviews = lazy(() => import("@/pages/merchant/MerchantReviews"));
+const MerchantSettings = lazy(() => import("@/pages/merchant/MerchantSettings"));
+const MerchantIntegrations = lazy(() => import("@/pages/merchant/MerchantIntegrations"));
+const Landing = lazy(() => import("@/pages/site/Landing"));
+const DevDocs = lazy(() => import("@/pages/site/DevDocs"));
 import Splash from "@/components/Splash";
 
-import AdminDashboard from "@/pages/admin/AdminDashboard";
-import AdminRestaurants from "@/pages/admin/AdminRestaurants";
-import AdminCustomers from "@/pages/admin/AdminCustomers";
-import AdminCities from "@/pages/admin/AdminCities";
-import AdminMarketing from "@/pages/admin/AdminMarketing";
-import AdminFinance from "@/pages/admin/AdminFinance";
-import AdminSystem from "@/pages/admin/AdminSystem";
-import AdminLeads from "@/pages/admin/AdminLeads";
+const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const AdminRestaurants = lazy(() => import("@/pages/admin/AdminRestaurants"));
+const AdminCustomers = lazy(() => import("@/pages/admin/AdminCustomers"));
+const AdminCities = lazy(() => import("@/pages/admin/AdminCities"));
+const AdminMarketing = lazy(() => import("@/pages/admin/AdminMarketing"));
+const AdminFinance = lazy(() => import("@/pages/admin/AdminFinance"));
+const AdminSystem = lazy(() => import("@/pages/admin/AdminSystem"));
+const AdminLeads = lazy(() => import("@/pages/admin/AdminLeads"));
 
 function App() {
   return (
@@ -50,6 +52,7 @@ function App() {
           <BrowserRouter>
             <Toaster position="top-center" richColors />
             <Splash />
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loading /></div>}>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/dev" element={<DevDocs />} />
@@ -88,6 +91,7 @@ function App() {
 
               <Route path="*" element={<Home />} />
             </Routes>
+            </Suspense>
           </BrowserRouter>
         </CartProvider>
       </CityProvider>

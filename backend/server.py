@@ -32,9 +32,12 @@ app.include_router(uploads_router)
 app.include_router(logistics_router)
 app.include_router(openapi_router)
 
+_origins = [o.strip() for o in os.environ.get("CORS_ORIGINS", "").split(",") if o.strip() and o.strip() != "*"]
+_origins += [os.environ.get("FRONTEND_URL", "").rstrip("/"), "http://localhost:3000"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.environ.get("FRONTEND_URL", "http://localhost:3000"), "http://localhost:3000"],
+    allow_origins=[o for o in dict.fromkeys(_origins) if o],
+    allow_origin_regex=r"https://([a-z0-9-]+\.)*(emergent\.host|emergentagent\.com|zupidelivery\.com\.br)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

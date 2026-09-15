@@ -5,36 +5,36 @@ from datetime import datetime, timezone, timedelta
 logger = logging.getLogger(__name__)
 
 IMG = {
-    "marmita1": "https://images.unsplash.com/photo-1751890893837-d43f80a5baf8?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "marmita2": "https://images.unsplash.com/photo-1562967914-70f9865b4c2f?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "frito": "https://images.unsplash.com/photo-1509236715619-171588ce72d5?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "mesa": "https://images.unsplash.com/photo-1709114107937-6dec855d9ab5?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "marmita_cat": "https://images.unsplash.com/photo-1653681472495-0a62d97e37fb?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "burger1": "https://images.unsplash.com/photo-1610614991969-ceeb293e7ff5?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "burger2": "https://images.unsplash.com/photo-1512152272829-e3139592d56f?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "burger3": "https://images.unsplash.com/photo-1610614819513-58e34989848b?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "burger4": "https://images.unsplash.com/photo-1615996001375-c7ef13294436?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "burger_cat": "https://images.unsplash.com/photo-1561758033-d89a9ad46330?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "burger_banner": "https://images.unsplash.com/photo-1610440042657-612c34d95e9f?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "pizza1": "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "pizza2": "https://images.unsplash.com/photo-1692737580547-b45bb4a02356?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "pizza3": "https://images.unsplash.com/photo-1628840042765-356cda07504e?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "pizza4": "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "pizza_cat": "https://images.unsplash.com/photo-1593504049359-74330189a345?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "pizza_banner": "https://images.unsplash.com/photo-1513104890138-7c749659a591?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "pizzaria_cover": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "acai1": "https://images.unsplash.com/photo-1654923064926-be7e64267a31?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "acai2": "https://images.unsplash.com/photo-1709139068234-f83a548f3bec?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "acai3": "https://images.unsplash.com/photo-1684403620650-81dc661a69db?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "acai4": "https://images.unsplash.com/photo-1590288488147-f46142daf112?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "sushi1": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "sushi2": "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "sushi3": "https://images.unsplash.com/photo-1611143669185-af224c5e3252?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "padaria1": "https://images.unsplash.com/photo-1608198093002-ad4e005484ec?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "padaria2": "https://images.unsplash.com/photo-1568254183919-78a4f43a2877?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "padaria3": "https://images.unsplash.com/photo-1534432182912-63863115e106?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "mercado": "https://images.unsplash.com/photo-1587241321921-91a834d6d191?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "cozinha": "https://images.unsplash.com/photo-1653796149139-c9da8470e6b4?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "marmita1": "https://images.unsplash.com/photo-1751890893837-d43f80a5baf8?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "marmita2": "https://images.unsplash.com/photo-1562967914-70f9865b4c2f?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "frito": "https://images.unsplash.com/photo-1509236715619-171588ce72d5?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "mesa": "https://images.unsplash.com/photo-1709114107937-6dec855d9ab5?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "marmita_cat": "https://images.unsplash.com/photo-1653681472495-0a62d97e37fb?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "burger1": "https://images.unsplash.com/photo-1610614991969-ceeb293e7ff5?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "burger2": "https://images.unsplash.com/photo-1512152272829-e3139592d56f?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "burger3": "https://images.unsplash.com/photo-1610614819513-58e34989848b?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "burger4": "https://images.unsplash.com/photo-1615996001375-c7ef13294436?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "burger_cat": "https://images.unsplash.com/photo-1561758033-d89a9ad46330?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "burger_banner": "https://images.unsplash.com/photo-1610440042657-612c34d95e9f?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "pizza1": "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "pizza2": "https://images.unsplash.com/photo-1692737580547-b45bb4a02356?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "pizza3": "https://images.unsplash.com/photo-1628840042765-356cda07504e?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "pizza4": "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "pizza_cat": "https://images.unsplash.com/photo-1593504049359-74330189a345?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "pizza_banner": "https://images.unsplash.com/photo-1513104890138-7c749659a591?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "pizzaria_cover": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "acai1": "https://images.unsplash.com/photo-1654923064926-be7e64267a31?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "acai2": "https://images.unsplash.com/photo-1709139068234-f83a548f3bec?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "acai3": "https://images.unsplash.com/photo-1684403620650-81dc661a69db?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "acai4": "https://images.unsplash.com/photo-1590288488147-f46142daf112?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "sushi1": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "sushi2": "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "sushi3": "https://images.unsplash.com/photo-1611143669185-af224c5e3252?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "padaria1": "https://images.unsplash.com/photo-1608198093002-ad4e005484ec?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "padaria2": "https://images.unsplash.com/photo-1568254183919-78a4f43a2877?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "padaria3": "https://images.unsplash.com/photo-1534432182912-63863115e106?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "mercado": "https://images.unsplash.com/photo-1587241321921-91a834d6d191?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
+    "cozinha": "https://images.unsplash.com/photo-1653796149139-c9da8470e6b4?crop=entropy&cs=srgb&fm=jpg&q=80&w=800",
 }
 
 FLOW = ["PENDING", "ACCEPTED", "PREPARING", "READY", "OUT_FOR_DELIVERY", "DELIVERED"]
@@ -68,13 +68,12 @@ async def seed_admin(db):
 async def seed_demo(db):
     if await db.meta.find_one({"id": "seed_v1_done"}):
         return
+    if await db.restaurants.count_documents({}) > 0:
+        await db.meta.update_one({"id": "seed_v1_done"}, {"$set": {"id": "seed_v1_done", "skipped": True}}, upsert=True)
+        return
     from security import hash_password
     from utils import uid, now_iso
-    logger.info("Semeando dados de demonstração do Zupi...")
-    for col in ["cities", "categories", "restaurants", "menu_categories", "products", "orders",
-                "transactions", "coupons", "banners", "notifications", "reviews", "favorites", "addresses"]:
-        await db[col].delete_many({})
-    await db.users.delete_many({"email": {"$regex": "@zupi.com$"}})
+    logger.info("Semeando dados de demonstração do Zupi (banco vazio)...")
     pw = hash_password("zupi123")
     now = datetime.now(timezone.utc)
 

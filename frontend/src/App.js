@@ -44,6 +44,7 @@ const AdminMarketing = lazy(() => import("@/pages/admin/AdminMarketing"));
 const AdminFinance = lazy(() => import("@/pages/admin/AdminFinance"));
 const AdminSystem = lazy(() => import("@/pages/admin/AdminSystem"));
 const AdminLeads = lazy(() => import("@/pages/admin/AdminLeads"));
+const AdminBilling = lazy(() => import("@/pages/admin/AdminBilling"));
 
 function App() {
   return (
@@ -90,6 +91,7 @@ function App() {
               <Route path="/admin/financeiro" element={<ProtectedRoute roles={["admin"]}><AdminFinance /></ProtectedRoute>} />
               <Route path="/admin/sistema" element={<ProtectedRoute roles={["admin"]}><AdminSystem /></ProtectedRoute>} />
               <Route path="/admin/leads" element={<ProtectedRoute roles={["admin"]}><AdminLeads /></ProtectedRoute>} />
+              <Route path="/admin/faturas" element={<ProtectedRoute roles={["admin"]}><AdminBilling /></ProtectedRoute>} />
 
               <Route path="*" element={<Home />} />
             </Routes>

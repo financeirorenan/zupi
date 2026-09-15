@@ -7,6 +7,7 @@ import { Loading } from "@/components/States";
 import { api, fmtBRL, fmtDateTime } from "@/lib/api";
 import { TrendingUp, Percent, Bike, Zap, Wallet, Printer, CalendarDays } from "lucide-react";
 import { printClosing } from "@/lib/printClosing";
+import MerchantBilling from "@/pages/merchant/MerchantBilling";
 
 const PAY = { pix: "Pix", card_machine: "Cartão", cash: "Dinheiro", online: "Online" };
 
@@ -86,6 +87,7 @@ export default function MerchantFinance() {
     >
       {!data ? <Loading /> : (
         <div className="space-y-5">
+          <MerchantBilling />
           <DailyClosing />
           <div className="bg-gradient-to-r from-orange-600 to-orange-500 rounded-2xl p-5 text-white flex flex-wrap items-center gap-4" data-testid="finance-net-card">
             <div>

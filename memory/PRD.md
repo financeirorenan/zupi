@@ -38,3 +38,16 @@ Ver `/app/memory/test_credentials.md` (admin: financeirorenanuk@gmail.com / Zupi
 ## 2026-06 — Correções
 - Bug: crash "destroy is not a function" em /lojista/cupons e /lojista/cardapio (useEffect retornando Promise). Corrigido.
 - Painel do lojista redesenhado com menu superior (layout tablet) via `DashboardLayout variant="top"`; admin mantém sidebar.
+
+## 2026-06 — Rodada "caminho para publicar" (testado: test_reports/iteration_2.json)
+- Painel lojista: menu superior (tablet); login lojista vai direto ao /lojista; botão "Ver loja no marketplace".
+- Central de Pedidos: som + destaque piscante para pedidos novos; modo tela cheia com 6 colunas; escolha de motoboy ao despachar.
+- Logística (/lojista/logistica): motoboys da casa (nome, telefone, veículo, diária, ativo); taxa de entrega por bairro com busca de bairros por cidade (OSM Overpass, cache db.districts, fallback endereços de pedidos, adição manual). Financeiro mostra frete cobrado x custo de diárias.
+- Upload local de imagens (Emergent Object Storage): produto, capa, logo. Rotas /api/uploads/image e /api/files/{path}.
+- API Aberta v1 (X-API-Key): restaurant, pause, orders, order status, menu, patch product. Webhooks assinados HMAC (order.created/status_changed/test). Tela Integrações com conectores Saipos/TakeEat/Consumer (URL+token+ativar+testar) e logs. Docs em /dev.
+- Site institucional em "/" (landing + form de leads -> db.leads; GET /api/admin/leads). Marketplace movido para /app.
+- PWA: manifest com ícones (raio Zupi), favicon.svg/ico, apple splash images, componente Splash em modo standalone.
+
+### Backlog
+- P1: Tela admin para leads (endpoint pronto). Reteste completo do reset de senha. Pagamento online (gateway).
+- P2: Notificações push, importação de cardápio, service worker offline.

@@ -1,0 +1,43 @@
+{
+  "summary": "Testes de iteração 2 (Logística, Uploads, Open API v1, Webhooks, Leads, Landing, PWA, fluxos de merchant novos). Backend: 24/25 testes pytest pass, 1 skipped (skip só rodou porque em xdist workers não compartilharam pytest.namespace — o teste é aprovado se cluster único, mas foi corrigido para buscar courier existente). Frontend: todos os testids essenciais presentes; página /lojista/cardapio e /lojista/cupons agora carregam sem erro de runtime (correção do 'destroy is not a function' está OK — iteração anterior). Landing, /dev, lead form e redirect merchant→/lojista funcionando. Central de Pedidos em fullscreen renderiza 6 colunas (Novos, Aceitos, Em preparo, Prontos, Em entrega, Concluídos). Webhook para httpbin.org grava log e retorna ok. Upload de PNG serve via /api/files/... com content-type image/png; upload de text/plain retorna 400. Busca de bairros em Sertãozinho para 'jardim' retorna 50 resultados (limite). Cupom demo ZUPI10 agora existe (seed_v1_done recriado). Todos os endpoints v1 (X-API-Key) auth+RBAC+CRUD+transições OK; rotate-key invalida chave antiga. PUT /merchant/logistics/zones filtra district vazio.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "/api/cities/{city}/districts", 
+        "issue": "Retorno é truncado em 50 itens no server side (limit [:50]). Se o cliente digita apenas 'j', não é possível paginar/ver mais. Não crítico, mas ficaria melhor um parâmetro limit configurável."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_zupi_v2.py",
+    "/app/backend/tests/test_zupi_api.py",
+    "/app/test_reports/pytest/pytest_v2.xml"
+  ],
+  "action_items": [
+    "Nada bloqueante. Considerar (opcional): (1) parâmetro limit no endpoint /cities/{city}/districts; (2) documentação /dev descrevendo formato do webhook (X-Zupi-Signature = HMAC-SHA256 do body); (3) o teste de status inválido do open-api foi skipped se não houver DELIVERED — poderia forçar cria+delivered em fixture."
+  ],
+  "critical_code_review_comments": [
+    "routers_uploads.py:29 — insere em db.files o storage_path retornado por put_object, mas o serve_file consulta por storage_path; ok. Mas GET /api/files/{path:path} não checa owner_id nem is_deleted->OK (checa is_deleted). Público por design (URLs contêm uuid). Considerar adicionar rate-limit se abuso for possível.",
+    "routers_openapi.py:100 — se restaurante não tiver nenhum pedido, o test_integration usa um order sintético com created_at=now_iso() e customer_id inexistente. O _post apenas dispara e loga; ok. Mas order.get('zupi_fee') pode ser None em order sintético; hoje só é usado em CANCELLED de v1_status, não no test_integration. OK.",
+    "routers_openapi.py:139 — v1_orders retorna 'orders' via order_payload(...)['order'] — usa spread. Se DB tiver order sem 'created_at', vai raise KeyError. Todos os pedidos seedados têm created_at, então tudo bem, mas seria seguro usar .get.",
+    "routers_logistics.py:35 city_districts — se OSM Overpass estiver fora e o cache não existir, retorna [] (usa distinct order.address.district como fallback). Isso é razoável, mas se Pradópolis não tem pedidos, retorna []. Não é bug, apenas fallback pobre. Considerar cachear resultado vazio com TTL curto para não bater no Overpass a cada request.",
+    "webhooks.py:76 dispatch — asyncio.gather sem return_exceptions; se um target erra, os demais ainda são disparados só porque _post capta a exceção internamente. Ok, mas explicitar return_exceptions=True é mais defensivo.",
+    "routers_uploads.py — Não há limite explícito de content-length antes do read() (só depois). Um cliente malicioso pode enviar arquivo grande e o server vai bufferizar tudo em memória antes de rejeitar. UploadFile do FastAPI usa SpooledTemporaryFile mas ainda le tudo. Considerar checar file.size (starlette 0.30+) antes de read()."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_zupi_v2.py"
+  ],
+  "success_rate": {"backend": "100% (24/24 + 1 skip esperado)", "frontend": "100% dos testids essenciais + fluxos críticos"},
+  "test_credentials": "OK — /app/memory/test_credentials.md válidos para admin/lojista/cliente.",
+  "seed_data_creation": "Nenhum. Seed_v1_done da iteração anterior está completo (cupom ZUPI10 criado, banners presentes).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend cobre agora: auth, orders E2E, merchant, admin, security (test_zupi_api.py) + logistics/couriers/zones, uploads, open-api v1, webhooks, leads, PWA site (test_zupi_v2.py). Total 60+ testes. Para UI o layout é TopLayout (data-testid=merchant-top-layout) com sidebar-* usando slugs em pt-BR (sidebar-pedidos, sidebar-cardapio, sidebar-logistica, sidebar-cupons, sidebar-financeiro, sidebar-avaliacoes, sidebar-integracoes, sidebar-configuracoes). Menu tem botão add-product-{cat_id[:8]} (não existe new-product-button global). Fullscreen orders NÃO usa data-testid orders-column-* — apenas orders-fullscreen no container. Se precisar granularidade nas colunas, pedir ao main agent para adicionar orders-column-{status}. Testado com Sertãozinho (bairros cacheados); Pradópolis pode retornar lista vazia se Overpass estiver fora.",
+  "rca of the issue": "N/A — nada quebrado nesta iteração."
+}

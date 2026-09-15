@@ -47,7 +47,7 @@ function NotificationsBell() {
 }
 
 const NAV = [
-  { to: "/", icon: Home, label: "Início" },
+  { to: "/app", icon: Home, label: "Início" },
   { to: "/buscar", icon: Search, label: "Buscar" },
   { to: "/pedidos", icon: Receipt, label: "Pedidos" },
   { to: "/favoritos", icon: Heart, label: "Favoritos" },
@@ -64,7 +64,7 @@ export default function CustomerLayout({ children }) {
     <div className="min-h-screen bg-[#F8F9FA]">
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b">
         <div className="max-w-6xl mx-auto flex items-center gap-2 px-3 sm:px-4 h-16">
-          <Link to="/" data-testid="nav-logo"><Logo small /></Link>
+          <Link to="/app" data-testid="nav-logo"><Logo small /></Link>
           <Popover>
             <PopoverTrigger asChild>
               <button data-testid="city-selector" className="flex items-center gap-1.5 px-3 h-11 rounded-xl hover:bg-orange-50 text-sm font-semibold text-slate-700 max-w-[150px] sm:max-w-none">
@@ -118,7 +118,7 @@ export default function CustomerLayout({ children }) {
                 <DropdownMenuItem onClick={() => navigate("/pedidos")} data-testid="menu-my-orders">Meus pedidos</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/perfil")} data-testid="menu-profile">Minha conta</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={async () => { await logout(); navigate("/"); }} data-testid="menu-logout">
+                <DropdownMenuItem onClick={async () => { await logout(); navigate("/app"); }} data-testid="menu-logout">
                   <LogOut className="w-4 h-4 mr-2" /> Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -158,7 +158,7 @@ export default function CustomerLayout({ children }) {
           <NavLink
             key={to}
             to={to}
-            end={to === "/"}
+            end={to === "/app"}
             data-testid={`bottom-nav-${label.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")}`}
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors ${isActive ? "text-orange-600" : "text-slate-400"}`

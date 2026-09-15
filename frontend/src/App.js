@@ -28,6 +28,10 @@ import MerchantLogistics from "@/pages/merchant/MerchantLogistics";
 import MerchantFinance from "@/pages/merchant/MerchantFinance";
 import MerchantReviews from "@/pages/merchant/MerchantReviews";
 import MerchantSettings from "@/pages/merchant/MerchantSettings";
+import MerchantIntegrations from "@/pages/merchant/MerchantIntegrations";
+import Landing from "@/pages/site/Landing";
+import DevDocs from "@/pages/site/DevDocs";
+import Splash from "@/components/Splash";
 
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminRestaurants from "@/pages/admin/AdminRestaurants";
@@ -44,8 +48,11 @@ function App() {
         <CartProvider>
           <BrowserRouter>
             <Toaster position="top-center" richColors />
+            <Splash />
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Landing />} />
+              <Route path="/dev" element={<DevDocs />} />
+              <Route path="/app" element={<Home />} />
               <Route path="/buscar" element={<Search />} />
               <Route path="/restaurante/:id" element={<RestaurantPage />} />
               <Route path="/carrinho" element={<Cart />} />
@@ -67,6 +74,7 @@ function App() {
               <Route path="/lojista/financeiro" element={<ProtectedRoute roles={["restaurant"]}><MerchantFinance /></ProtectedRoute>} />
               <Route path="/lojista/avaliacoes" element={<ProtectedRoute roles={["restaurant"]}><MerchantReviews /></ProtectedRoute>} />
               <Route path="/lojista/configuracoes" element={<ProtectedRoute roles={["restaurant"]}><MerchantSettings /></ProtectedRoute>} />
+              <Route path="/lojista/integracoes" element={<ProtectedRoute roles={["restaurant"]}><MerchantIntegrations /></ProtectedRoute>} />
 
               <Route path="/admin" element={<ProtectedRoute roles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
               <Route path="/admin/restaurantes" element={<ProtectedRoute roles={["admin"]}><AdminRestaurants /></ProtectedRoute>} />

@@ -41,7 +41,7 @@ export default function Orders() {
         {!orders && <Loading />}
         {orders?.length === 0 && (
           <EmptyState icon={Receipt} title="Nenhum pedido ainda" description="Que tal pedir algo gostoso hoje?">
-            <Link to="/"><Button data-testid="orders-explore" className="rounded-xl font-bold h-12 px-6 mt-2">Explorar restaurantes</Button></Link>
+            <Link to="/app"><Button data-testid="orders-explore" className="rounded-xl font-bold h-12 px-6 mt-2">Explorar restaurantes</Button></Link>
           </EmptyState>
         )}
         <div className="space-y-3 mt-5">

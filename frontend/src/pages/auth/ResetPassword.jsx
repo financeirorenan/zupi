@@ -29,7 +29,7 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center p-4">
-      <Link to="/" className="mb-8"><Logo /></Link>
+      <Link to="/app" className="mb-8"><Logo /></Link>
       <div className="w-full max-w-sm bg-white rounded-2xl border p-6 shadow-sm" data-testid="reset-password-card">
         <h1 className="font-display font-extrabold text-2xl text-slate-900">Nova senha</h1>
         <form onSubmit={submit} className="space-y-4 mt-6">

@@ -95,7 +95,7 @@ export default function DashboardLayout({ menu, title, subtitle, actions, childr
 
   const doLogout = async () => {
     await logout();
-    navigate("/");
+    navigate("/app");
   };
 
   if (variant === "top") {

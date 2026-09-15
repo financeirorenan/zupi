@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 from database import db
 from security import require_roles
+from webhooks import fire
 from utils import (
     uid, now_iso, notify, audit, can_transition, get_settings, STATUS_LABELS,
 )
@@ -158,6 +159,8 @@ async def set_order_status(oid: str, data: StatusIn, user=Depends(merchant)):
         })
     await notify(o["customer_id"], f"Pedido {o['code']}: {STATUS_LABELS.get(data.status, data.status)}",
                  f"{r['name']} atualizou seu pedido.", "order", oid)
+    o.update(updates)
+    fire(o, "order.status_changed")
     return {"message": "ok", "status": data.status}
 
 

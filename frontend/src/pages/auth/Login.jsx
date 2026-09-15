@@ -25,7 +25,7 @@ export default function Login() {
       if (user.role === "restaurant") navigate(next?.startsWith("/lojista") ? next : "/lojista");
       else if (next) navigate(next);
       else if (user.role === "admin") navigate("/admin");
-      else navigate("/");
+      else navigate("/app");
     } catch (err) {
       setError(apiError(err));
     } finally {
@@ -35,7 +35,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center p-4">
-      <Link to="/" className="mb-8"><Logo /></Link>
+      <Link to="/app" className="mb-8"><Logo /></Link>
       <div className="w-full max-w-sm bg-white rounded-2xl border p-6 shadow-sm" data-testid="login-card">
         <h1 className="font-display font-extrabold text-2xl text-slate-900">Entrar</h1>
         <p className="text-sm text-slate-500 mt-1 mb-6">Peça dos restaurantes que você conhece.</p>
@@ -58,7 +58,7 @@ export default function Login() {
           <Link to="/cadastrar" data-testid="register-link" className="text-slate-600 font-semibold">Criar conta</Link>
         </div>
       </div>
-      <Link to="/" className="mt-6 text-sm text-slate-400">← Voltar ao início</Link>
+      <Link to="/app" className="mt-6 text-sm text-slate-400">← Voltar ao início</Link>
     </div>
   );
 }

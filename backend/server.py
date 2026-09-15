@@ -14,6 +14,7 @@ from routers_merchant import router as merchant_router
 from routers_admin import router as admin_router
 from routers_uploads import router as uploads_router
 from routers_logistics import router as logistics_router
+from routers_openapi import router as openapi_router
 from seed import seed_admin, seed_demo
 from storage import init_storage
 
@@ -29,6 +30,7 @@ app.include_router(merchant_router)
 app.include_router(admin_router)
 app.include_router(uploads_router)
 app.include_router(logistics_router)
+app.include_router(openapi_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -66,6 +68,9 @@ async def startup():
     await db.couriers.create_index("restaurant_id")
     await db.files.create_index("storage_path")
     await db.districts.create_index("city", unique=True)
+    await db.integrations.create_index("restaurant_id", unique=True)
+    await db.integrations.create_index("api_key", unique=True)
+    await db.webhook_logs.create_index([("restaurant_id", 1), ("created_at", -1)])
     try:
         await init_storage()
         logger.info("Storage inicializado")

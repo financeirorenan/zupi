@@ -117,7 +117,7 @@ export default function Profile() {
               <Button
                 variant="outline"
                 data-testid="profile-logout-button"
-                onClick={async () => { await logout(); navigate("/"); }}
+                onClick={async () => { await logout(); navigate("/app"); }}
                 className="h-12 rounded-xl font-bold text-red-600 border-red-200"
               >
                 <LogOut className="w-4 h-4 mr-2" /> Sair da conta

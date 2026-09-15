@@ -7,6 +7,6 @@ export default function ProtectedRoute({ roles, children }) {
   const loc = useLocation();
   if (user === null) return <Loading text="Verificando sessão..." />;
   if (!user) return <Navigate to={`/entrar?next=${encodeURIComponent(loc.pathname)}`} replace />;
-  if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />;
+  if (roles && !roles.includes(user.role)) return <Navigate to="/app" replace />;
   return children;
 }

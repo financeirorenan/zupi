@@ -33,7 +33,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center p-4">
-      <Link to="/" className="mb-8"><Logo /></Link>
+      <Link to="/app" className="mb-8"><Logo /></Link>
       <div className="w-full max-w-sm bg-white rounded-2xl border p-6 shadow-sm" data-testid="register-card">
         <h1 className="font-display font-extrabold text-2xl text-slate-900">
           {isMerchant ? "Cadastre seu restaurante" : "Criar conta"}

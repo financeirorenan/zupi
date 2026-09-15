@@ -36,7 +36,7 @@ export default function Cart() {
     return (
       <CustomerLayout>
         <EmptyState icon={ShoppingBag} title="Seu carrinho está vazio" description="Explore os restaurantes da sua cidade e faça seu pedido.">
-          <Link to="/"><Button data-testid="empty-cart-explore" className="rounded-xl font-bold h-12 px-6 mt-2">Explorar restaurantes</Button></Link>
+          <Link to="/app"><Button data-testid="empty-cart-explore" className="rounded-xl font-bold h-12 px-6 mt-2">Explorar restaurantes</Button></Link>
         </EmptyState>
       </CustomerLayout>
     );

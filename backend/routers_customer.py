@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 from database import db
 from security import require_roles
+from webhooks import fire
 from utils import (
     uid, now_iso, notify, can_transition, is_restaurant_open,
     get_settings, validate_coupon, delivery_fee_for, STATUS_LABELS,
@@ -167,6 +168,7 @@ async def create_order(data: OrderIn, user=Depends(customer)):
     })
     await notify(r["owner_id"], "Novo pedido recebido!", f"Pedido {order['code']} - R$ {total:.2f}", "order", order["id"])
     await notify(user["id"], "Pedido realizado!", f"Seu pedido {order['code']} foi enviado para {r['name']}", "order", order["id"])
+    fire(order, "order.created")
     return order
 
 

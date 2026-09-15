@@ -104,3 +104,8 @@ html {
 
 @keyframes new-order-blink{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0);border-color:#e2e8f0}50%{box-shadow:0 0 0 4px rgba(245,158,11,.5);border-color:#f59e0b;background:#fffbeb}}
 .new-order-blink{animation:new-order-blink 1s ease-in-out infinite}
+
+@keyframes splash-pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+.splash-pop{animation:splash-pop .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes splash-rise{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+.splash-rise{animation:splash-rise .5s .3s ease-out both}

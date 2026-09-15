@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { MapPin, Plus, Trash2, User, LifeBuoy, LogOut, Pencil } from "lucide-react";
 import CustomerLayout from "@/components/CustomerLayout";
+import PushToggle from "@/components/PushToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -102,6 +103,9 @@ export default function Profile() {
           ))}
         </div>
 
+        {tab === "dados" && (
+          <div className="mt-5"><PushToggle /></div>
+        )}
         {tab === "dados" && (
           <div className="bg-white rounded-2xl border p-5 mt-5 space-y-4" data-testid="profile-data-form">
             <div>

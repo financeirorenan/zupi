@@ -311,6 +311,35 @@ async def list_notifications(user=Depends(require_roles("customer", "restaurant"
     return {"items": items, "unread": unread}
 
 
+class PushSubIn(BaseModel):
+    subscription: dict
+
+
+@router.post("/push/subscribe")
+async def push_subscribe(data: PushSubIn, user=Depends(require_roles("customer", "restaurant", "admin"))):
+    endpoint = data.subscription.get("endpoint")
+    if not endpoint:
+        raise HTTPException(400, "Assinatura inválida")
+    await db.push_subscriptions.update_one(
+        {"endpoint": endpoint},
+        {"$set": {"user_id": user["id"], "subscription": data.subscription, "updated_at": now_iso()}, "$setOnInsert": {"id": uid(), "created_at": now_iso()}},
+        upsert=True,
+    )
+    return {"message": "ok"}
+
+
+@router.delete("/push/subscribe")
+async def push_unsubscribe(data: PushSubIn, user=Depends(require_roles("customer", "restaurant", "admin"))):
+    await db.push_subscriptions.delete_many({"endpoint": data.subscription.get("endpoint"), "user_id": user["id"]})
+    return {"message": "ok"}
+
+
+@router.post("/push/test")
+async def push_test(user=Depends(require_roles("customer", "restaurant", "admin"))):
+    await notify(user["id"], "Notificações ativadas!", "Você vai receber avisos a cada mudança nos seus pedidos.", "system")
+    return {"message": "ok"}
+
+
 @router.post("/notifications/read-all")
 async def read_all_notifications(user=Depends(require_roles("customer", "restaurant", "admin"))):
     await db.notifications.update_many({"user_id": user["id"]}, {"$set": {"read": True}})

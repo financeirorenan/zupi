@@ -336,6 +336,45 @@ async def delete_coupon(cid: str, user=Depends(merchant)):
     return {"message": "ok"}
 
 
+@router.get("/finance/closing")
+async def daily_closing(date: str | None = None, user=Depends(merchant)):
+    r = await get_merchant_restaurant(user)
+    day = datetime.strptime(date, "%Y-%m-%d").date() if date else datetime.now(TZ).date()
+    start = datetime.combine(day, datetime.min.time(), tzinfo=TZ)
+    end = start + timedelta(days=1)
+    orders = await db.orders.find({"restaurant_id": r["id"], "created_at": {"$gte": start.astimezone(timezone.utc).isoformat(), "$lt": end.astimezone(timezone.utc).isoformat()}}, {"_id": 0}).to_list(5000)
+    valid = [o for o in orders if o["status"] != "CANCELLED"]
+    cancelled = [o for o in orders if o["status"] == "CANCELLED"]
+    by_payment: dict = {}
+    for o in valid:
+        p = by_payment.setdefault(o.get("payment_method", "outro"), {"method": o.get("payment_method", "outro"), "orders": 0, "total": 0.0})
+        p["orders"] += 1
+        p["total"] = round(p["total"] + o["total"], 2)
+    gross = round(sum(o["subtotal"] for o in valid), 2)
+    discounts = round(sum(o.get("discount", 0) for o in valid), 2)
+    delivery_fees = round(sum(o.get("delivery_fee", 0) for o in valid), 2)
+    total = round(sum(o["total"] for o in valid), 2)
+    settings = await get_settings()
+    zupi_fees = round(len(valid) * settings.get("platform_fee", 2.0), 2)
+    couriers = await db.couriers.find({"restaurant_id": r["id"], "active": True}, {"_id": 0}).to_list(100)
+    courier_rows = []
+    for c in couriers:
+        n = len([o for o in valid if o.get("courier_id") == c["id"] and o["status"] == "DELIVERED"])
+        courier_rows.append({"name": c["name"], "deliveries": n, "daily_rate": c.get("daily_rate", 0)})
+    courier_cost = round(sum(c["daily_rate"] for c in courier_rows), 2)
+    deliveries = len([o for o in valid if o.get("delivery_type") == "delivery"])
+    return {
+        "date": day.isoformat(), "restaurant": r["name"], "generated_at": now_iso(),
+        "orders": len(valid), "cancelled": len(cancelled), "deliveries": deliveries, "pickups": len(valid) - deliveries,
+        "gross": gross, "discounts": discounts, "delivery_fees": delivery_fees, "total": total,
+        "by_payment": sorted(by_payment.values(), key=lambda x: -x["total"]),
+        "zupi_fees": zupi_fees, "platform_fee": settings.get("platform_fee", 2.0),
+        "couriers": courier_rows, "courier_cost": courier_cost,
+        "net": round(total - zupi_fees - courier_cost, 2),
+        "avg_ticket": round(total / len(valid), 2) if valid else 0,
+    }
+
+
 @router.get("/finance")
 async def finance(days: int = 30, user=Depends(merchant)):
     r = await get_merchant_restaurant(user)

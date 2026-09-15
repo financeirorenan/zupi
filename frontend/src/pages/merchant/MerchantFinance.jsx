@@ -5,7 +5,62 @@ import { MERCHANT_MENU } from "@/pages/menus";
 import { StatCard } from "@/pages/merchant/MerchantDashboard";
 import { Loading } from "@/components/States";
 import { api, fmtBRL, fmtDateTime } from "@/lib/api";
-import { TrendingUp, Percent, Bike, Zap, Wallet } from "lucide-react";
+import { TrendingUp, Percent, Bike, Zap, Wallet, Printer, CalendarDays } from "lucide-react";
+import { printClosing } from "@/lib/printClosing";
+
+const PAY = { pix: "Pix", card_machine: "Cartão", cash: "Dinheiro", online: "Online" };
+
+function DailyClosing() {
+  const [date, setDate] = useState(() => new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" }));
+  const [d, setD] = useState(null);
+  useEffect(() => {
+    setD(null);
+    api.get("/merchant/finance/closing", { params: { date } }).then((r) => setD(r.data)).catch(() => setD(false));
+  }, [date]);
+  return (
+    <div className="bg-white rounded-2xl border p-5" data-testid="daily-closing">
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <div className="flex-1 min-w-[200px]">
+          <h3 className="font-display font-bold text-slate-900 flex items-center gap-2"><CalendarDays className="w-5 h-5 text-orange-600" /> Fechamento do dia</h3>
+          <p className="text-xs text-slate-500">Resumo do caixa: vendas, formas de pagamento, taxa Zupi e diárias dos motoboys.</p>
+        </div>
+        <input type="date" data-testid="closing-date" value={date} max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" })} onChange={(e) => setDate(e.target.value)} className="h-11 rounded-xl border px-3 text-sm" />
+        <button data-testid="closing-print" disabled={!d} onClick={() => printClosing(d)} className="h-11 px-4 rounded-xl bg-slate-900 text-white text-xs font-bold flex items-center gap-2 disabled:opacity-40"><Printer className="w-4 h-4" /> Imprimir fechamento</button>
+      </div>
+      {d === null && <Loading />}
+      {d === false && <p className="text-sm text-red-500">Não foi possível carregar o fechamento.</p>}
+      {d && (
+        <div className="grid md:grid-cols-3 gap-4 text-sm">
+          <div className="space-y-1.5" data-testid="closing-sales">
+            <p className="text-xs font-bold text-slate-400 uppercase">Vendas</p>
+            <Row l={`Pedidos válidos (${d.cancelled} cancelados)`} v={d.orders} />
+            <Row l="Produtos (bruto)" v={fmtBRL(d.gross)} />
+            {d.discounts > 0 && <Row l="Descontos" v={`- ${fmtBRL(d.discounts)}`} />}
+            <Row l="Taxas de entrega" v={fmtBRL(d.delivery_fees)} />
+            <Row l="Total vendido" v={fmtBRL(d.total)} bold />
+            <Row l="Ticket médio" v={fmtBRL(d.avg_ticket)} />
+          </div>
+          <div className="space-y-1.5" data-testid="closing-payments">
+            <p className="text-xs font-bold text-slate-400 uppercase">Formas de pagamento</p>
+            {d.by_payment.length === 0 && <p className="text-slate-400">Sem vendas neste dia</p>}
+            {d.by_payment.map((p) => <Row key={p.method} l={`${PAY[p.method] || p.method} (${p.orders})`} v={fmtBRL(p.total)} />)}
+          </div>
+          <div className="space-y-1.5" data-testid="closing-costs">
+            <p className="text-xs font-bold text-slate-400 uppercase">Custos e resultado</p>
+            <Row l={`Taxa Zupi (${d.orders} × ${fmtBRL(d.platform_fee)})`} v={`- ${fmtBRL(d.zupi_fees)}`} />
+            {d.couriers.map((c) => <Row key={c.name} l={`Diária ${c.name} (${c.deliveries} entr.)`} v={`- ${fmtBRL(c.daily_rate)}`} />)}
+            <div className="pt-2 mt-2 border-t flex justify-between items-center">
+              <span className="font-bold">Resultado do dia</span>
+              <span className={`font-display font-extrabold text-xl ${d.net >= 0 ? "text-emerald-600" : "text-red-500"}`} data-testid="closing-net">{fmtBRL(d.net)}</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const Row = ({ l, v, bold }) => <div className={`flex justify-between gap-3 ${bold ? "font-bold text-slate-900" : "text-slate-600"}`}><span>{l}</span><span className="text-right">{v}</span></div>;
 
 export default function MerchantFinance() {
   const [days, setDays] = useState(30);
@@ -31,6 +86,7 @@ export default function MerchantFinance() {
     >
       {!data ? <Loading /> : (
         <div className="space-y-5">
+          <DailyClosing />
           <div className="bg-gradient-to-r from-orange-600 to-orange-500 rounded-2xl p-5 text-white flex flex-wrap items-center gap-4" data-testid="finance-net-card">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-orange-100">Valor líquido no período</p>

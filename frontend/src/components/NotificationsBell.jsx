@@ -1,11 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bell } from "lucide-react";
+import { toast } from "sonner";
 import { api, fmtDateTime } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export default function NotificationsBell({ light = false, poll = 30000 }) {
   const [data, setData] = useState(null);
-  const load = () => api.get("/notifications").then((r) => setData(r.data)).catch(() => {});
+  const lastSeen = useRef(null);
+  const load = () => api.get("/notifications").then((r) => {
+    const newest = r.data.items?.[0];
+    if (newest && lastSeen.current && newest.id !== lastSeen.current && !newest.read) {
+      toast(newest.title, { description: newest.body, icon: <Bell className="w-4 h-4 text-orange-600" /> });
+    }
+    if (newest) lastSeen.current = newest.id;
+    setData(r.data);
+  }).catch(() => {});
   useEffect(() => {
     load();
     if (!poll) return;

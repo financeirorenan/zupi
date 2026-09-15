@@ -1,4 +1,5 @@
 import uuid
+import asyncio
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 from database import db
@@ -45,6 +46,9 @@ async def notify(user_id: str, title: str, body: str, ntype: str = "order", orde
         "id": uid(), "user_id": user_id, "title": title, "body": body,
         "type": ntype, "order_id": order_id, "read": False, "created_at": now_iso(),
     })
+    from push import push_to_user
+    url = f"/pedido/{order_id}" if order_id else ("/admin/leads" if ntype == "lead" else "/app")
+    asyncio.create_task(push_to_user(user_id, title, body, url, tag=order_id or ntype))
 
 
 async def audit(actor_id: str, action: str, entity: str, entity_id: str, before=None, after=None):

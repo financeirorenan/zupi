@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAM_ID_AQUI.br.com.zupidelivery.app",
+        "paths": ["/app", "/app/*", "/restaurante/*", "/pedido/*", "/pedidos", "/carrinho", "/checkout", "/reset-password"]
+      }
+    ]
+  }
+}

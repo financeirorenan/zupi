@@ -1,0 +1,25 @@
+{
+  "appId": "br.com.zupidelivery.app",
+  "appName": "Zupi Delivery",
+  "webDir": "www",
+  "server": {
+    "url": "https://www.zupidelivery.com.br/app?source=ios",
+    "allowNavigation": ["www.zupidelivery.com.br", "zupidelivery.com.br", "*.emergent.host"]
+  },
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#FF5722",
+    "preferredContentMode": "mobile",
+    "scheme": "Zupi"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "launchShowDuration": 1200,
+      "backgroundColor": "#FF5722",
+      "showSpinner": false
+    },
+    "StatusBar": { "style": "LIGHT", "backgroundColor": "#FF5722" },
+    "PushNotifications": { "presentationOptions": ["badge", "sound", "alert"] }
+  }
+}

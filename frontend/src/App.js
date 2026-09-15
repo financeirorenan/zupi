@@ -33,6 +33,7 @@ const MerchantSettings = lazy(() => import("@/pages/merchant/MerchantSettings"))
 const MerchantIntegrations = lazy(() => import("@/pages/merchant/MerchantIntegrations"));
 const Landing = lazy(() => import("@/pages/site/Landing"));
 const DevDocs = lazy(() => import("@/pages/site/DevDocs"));
+const Privacy = lazy(() => import("@/pages/site/Privacy"));
 import Splash from "@/components/Splash";
 
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
@@ -56,6 +57,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/dev" element={<DevDocs />} />
+              <Route path="/privacidade" element={<Privacy />} />
               <Route path="/app" element={<Home />} />
               <Route path="/buscar" element={<Search />} />
               <Route path="/restaurante/:id" element={<RestaurantPage />} />

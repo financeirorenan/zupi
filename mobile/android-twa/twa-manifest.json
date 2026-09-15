@@ -1,0 +1,39 @@
+{
+  "packageId": "br.com.zupidelivery.app",
+  "host": "www.zupidelivery.com.br",
+  "name": "Zupi Delivery",
+  "launcherName": "Zupi",
+  "display": "standalone",
+  "themeColor": "#FF5722",
+  "themeColorDark": "#121212",
+  "navigationColor": "#FF5722",
+  "navigationColorDark": "#121212",
+  "navigationDividerColor": "#FF5722",
+  "navigationDividerColorDark": "#121212",
+  "backgroundColor": "#FF5722",
+  "enableNotifications": true,
+  "startUrl": "/app?source=twa",
+  "iconUrl": "https://www.zupidelivery.com.br/icon-512.png",
+  "maskableIconUrl": "https://www.zupidelivery.com.br/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "zupi"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    { "name": "Meus pedidos", "shortName": "Pedidos", "url": "/pedidos", "chosenIconUrl": "https://www.zupidelivery.com.br/icon-192.png" }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://www.zupidelivery.com.br/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": { "enabled": false },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://www.zupidelivery.com.br/",
+  "minSdkVersion": 21,
+  "orientation": "portrait"
+}

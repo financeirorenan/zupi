@@ -1,0 +1,23 @@
+{
+  "name": "zupi-delivery-ios",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "prepare:web": "mkdir -p www && cp -r ../../frontend/public/icon-192.png ../../frontend/public/icon-512.png www/ && echo '<!doctype html><meta http-equiv=\"refresh\" content=\"0;url=https://www.zupidelivery.com.br/app?source=ios\">' > www/index.html",
+    "ios:add": "npm run prepare:web && npx cap add ios",
+    "ios:sync": "npm run prepare:web && npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "assets": "npx @capacitor/assets generate --ios --iconBackgroundColor '#FF5722' --splashBackgroundColor '#FF5722'"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.1.0",
+    "@capacitor/ios": "^6.1.0",
+    "@capacitor/splash-screen": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0",
+    "@capacitor/push-notifications": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.0",
+    "@capacitor/assets": "^3.0.5"
+  }
+}

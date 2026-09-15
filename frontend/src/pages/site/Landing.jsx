@@ -167,6 +167,7 @@ export default function Landing() {
         <Link to="/app" className="hover:text-white">App do cliente</Link>
         <Link to="/entrar" className="hover:text-white">Painel do lojista</Link>
         <Link to="/dev" className="hover:text-white">API para desenvolvedores</Link>
+        <Link to="/privacidade" data-testid="landing-privacy-link" className="hover:text-white">Privacidade</Link>
         <span>© {new Date().getFullYear()} Zupi Delivery</span>
       </footer>
     </div>

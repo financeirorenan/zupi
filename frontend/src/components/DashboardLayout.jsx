@@ -2,6 +2,7 @@ import { NavLink, useNavigate, Link } from "react-router-dom";
 import { LogOut, Menu as MenuIcon, Store } from "lucide-react";
 import { useState, useEffect } from "react";
 import Logo from "@/components/Logo";
+import NotificationsBell from "@/components/NotificationsBell";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -43,6 +44,7 @@ function TopLayout({ menu, title, subtitle, actions, children, user, doLogout })
         <div className="px-4 sm:px-6 h-16 flex items-center gap-4">
           <Logo light />
           <div className="flex-1" />
+          <NotificationsBell light />
           {restId && (
             <Link to={`/restaurante/${restId}`} target="_blank" data-testid="view-store-button" className="h-11 px-4 flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-sm font-semibold transition-colors">
               <Store className="w-4 h-4" /> <span className="hidden sm:inline">Ver loja no marketplace</span><span className="sm:hidden">Ver loja</span>
@@ -139,6 +141,7 @@ export default function DashboardLayout({ menu, title, subtitle, actions, childr
             {subtitle && <p className="text-xs text-slate-500 truncate">{subtitle}</p>}
           </div>
           <div className="flex-1" />
+          <NotificationsBell />
           {actions}
         </header>
         <main className="p-4 sm:p-6 flex-1">{children}</main>

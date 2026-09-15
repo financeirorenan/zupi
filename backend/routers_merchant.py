@@ -70,6 +70,17 @@ class PauseIn(BaseModel):
     paused: bool
 
 
+class AutoPrintIn(BaseModel):
+    auto_print: bool
+
+
+@router.post("/auto-print")
+async def set_auto_print(data: AutoPrintIn, user=Depends(merchant)):
+    r = await get_merchant_restaurant(user)
+    await db.restaurants.update_one({"id": r["id"]}, {"$set": {"auto_print": data.auto_print}})
+    return {"auto_print": data.auto_print}
+
+
 @router.post("/pause")
 async def pause_restaurant(data: PauseIn, user=Depends(merchant)):
     r = await get_merchant_restaurant(user)

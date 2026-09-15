@@ -1,50 +1,15 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Home, Search, Receipt, Heart, User, MapPin, ShoppingCart, Bell, LogOut, Store, ShieldCheck, ChevronDown } from "lucide-react";
+import { Home, Search, Receipt, Heart, User, MapPin, ShoppingCart, LogOut, Store, ShieldCheck, ChevronDown } from "lucide-react";
 import Logo from "@/components/Logo";
+import NotificationsBell from "@/components/NotificationsBell";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useCity } from "@/context/CityContext";
-import { api, fmtDateTime } from "@/lib/api";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { api } from "@/lib/api";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
-function NotificationsBell() {
-  const [data, setData] = useState(null);
-  const load = () => api.get("/notifications").then((r) => setData(r.data)).catch(() => {});
-  return (
-    <Popover onOpenChange={(o) => o && load()}>
-      <PopoverTrigger asChild>
-        <button data-testid="notifications-button" className="relative w-11 h-11 rounded-xl hover:bg-orange-50 flex items-center justify-center">
-          <Bell className="w-5 h-5 text-slate-700" />
-          {data?.unread > 0 && (
-            <span className="absolute top-1.5 right-1.5 bg-orange-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{data.unread}</span>
-          )}
-        </button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between px-4 py-3 border-b">
-          <p className="font-bold text-sm">Notificações</p>
-          {data?.unread > 0 && (
-            <button data-testid="notifications-read-all" className="text-xs text-orange-600 font-semibold" onClick={() => api.post("/notifications/read-all").then(load)}>
-              Marcar lidas
-            </button>
-          )}
-        </div>
-        <div className="max-h-80 overflow-y-auto">
-          {!data?.items?.length && <p className="text-sm text-slate-400 text-center py-8">Nenhuma notificação</p>}
-          {data?.items?.map((n) => (
-            <div key={n.id} className={`px-4 py-3 border-b last:border-0 ${!n.read ? "bg-orange-50/60" : ""}`}>
-              <p className="text-sm font-semibold text-slate-800">{n.title}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{n.body}</p>
-              <p className="text-[10px] text-slate-400 mt-1">{fmtDateTime(n.created_at)}</p>
-            </div>
-          ))}
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}
 
 const NAV = [
   { to: "/app", icon: Home, label: "Início" },

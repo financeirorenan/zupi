@@ -49,6 +49,9 @@ Ver `/app/memory/test_credentials.md` (admin: financeirorenanuk@gmail.com / Zupi
 - PWA: manifest com ícones (raio Zupi), favicon.svg/ico, apple splash images, componente Splash em modo standalone.
 
 ### Backlog
-- P1: Reteste completo do reset de senha. Pagamento online (gateway).
+- P1: Pagamento online (gateway).
 - P2: Notificações push, importação de cardápio, service worker offline.
 - Admin > Leads (/admin/leads): cards com status novo/em contato/fechado, filtros, anotações, link WhatsApp. PATCH /api/admin/leads/{id}.
+- Impressão de pedidos: cupom 80mm via iframe (lib/printOrder.js); impressão automática ao chegar pedido novo com toggle "Impressão automática / Sem impressão (KDS)" (restaurant.auto_print, POST /api/merchant/auto-print); botão imprimir por ticket. Impressão silenciosa requer Chrome em modo kiosk (--kiosk-printing).
+- Notificações: sino compartilhado (NotificationsBell) nos painéis admin/lojista com polling 30s; novo lead do site notifica todos os admins.
+- Reset de senha testado e2e: envio real via proxy de e-mail (202 Accepted), token de uso único, expiração, login com nova senha OK.

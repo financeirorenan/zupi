@@ -214,6 +214,9 @@ async def create_lead(data: LeadIn):
     doc = {"id": uid(), **data.model_dump(), "status": "new", "created_at": now_iso()}
     await db.leads.insert_one(doc)
     doc.pop("_id", None)
+    admins = await db.users.find({"role": "admin"}, {"_id": 0, "id": 1}).to_list(50)
+    for a in admins:
+        await notify(a["id"], "Novo lead do site", f"{data.name} ({data.business or 'restaurante'}) — {data.city} • {data.phone}", "lead")
     return {"message": "ok", "id": doc["id"]}
 
 

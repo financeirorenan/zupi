@@ -3,7 +3,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { MERCHANT_MENU } from "@/pages/menus";
 import { api, fmtBRL, fmtDateTime, apiError } from "@/lib/api";
 import { toast } from "sonner";
-import { BellRing, Check, X, ChefHat, Package, Bike, PackageCheck, Maximize2, Minimize2 } from "lucide-react";
+import { BellRing, Check, X, ChefHat, Package, Bike, PackageCheck, Maximize2, Minimize2, Printer, PrinterCheck } from "lucide-react";
+import { printOrder } from "@/lib/printOrder";
 
 const COLUMNS = [
   { id: "PENDING", label: "Novos", color: "border-amber-400 bg-amber-50" },
@@ -41,6 +42,10 @@ export default function MerchantOrders() {
   const [fullscreen, setFullscreen] = useState(false);
   const [newIds, setNewIds] = useState([]);
   const knownIds = useRef(null);
+  const [rest, setRest] = useState(null);
+  const autoPrint = rest?.auto_print !== false;
+  const autoPrintRef = useRef(true);
+  const restNameRef = useRef("");
 
   const load = () =>
     api.get("/merchant/orders").then((r) => {
@@ -51,6 +56,7 @@ export default function MerchantOrders() {
           beep();
           toast.success(fresh.length === 1 ? "Novo pedido recebido!" : `${fresh.length} novos pedidos!`, { icon: <BellRing className="w-4 h-4" /> });
           setNewIds((prev) => [...prev, ...fresh]);
+          if (autoPrintRef.current) r.data.filter((o) => fresh.includes(o.id)).forEach((o, i) => setTimeout(() => printOrder(o, restNameRef.current), i * 800));
         }
       }
       knownIds.current = pendingIds;
@@ -59,6 +65,7 @@ export default function MerchantOrders() {
 
   useEffect(() => {
     load();
+    api.get("/merchant/restaurant").then((r) => { setRest(r.data); autoPrintRef.current = r.data.auto_print !== false; restNameRef.current = r.data.name; }).catch(() => {});
     api.get("/merchant/logistics/couriers").then((r) => setCouriers(r.data.filter((c) => c.active))).catch(() => {});
     const t = setInterval(load, 5000);
     const onFs = () => setFullscreen(!!document.fullscreenElement);
@@ -137,10 +144,25 @@ export default function MerchantOrders() {
     </div>
   );
 
+  const toggleAutoPrint = async () => {
+    const next = !autoPrint;
+    try {
+      await api.post("/merchant/auto-print", { auto_print: next });
+      setRest({ ...rest, auto_print: next });
+      autoPrintRef.current = next;
+      toast.success(next ? "Impressão automática ativada" : "Impressão automática desativada (modo KDS)");
+    } catch (e) { toast.error(apiError(e)); }
+  };
+
   const fsButton = (
-    <button data-testid="fullscreen-toggle" onClick={toggleFullscreen} className="h-11 px-4 rounded-xl bg-slate-900 text-white text-xs font-bold flex items-center gap-2 hover:bg-slate-700">
-      {fullscreen ? <><Minimize2 className="w-4 h-4" /> Sair da tela cheia</> : <><Maximize2 className="w-4 h-4" /> Tela cheia</>}
-    </button>
+    <div className="flex gap-2">
+      <button data-testid="auto-print-toggle" onClick={toggleAutoPrint} title={autoPrint ? "Novos pedidos são impressos automaticamente. Desative se usar KDS." : "Impressão automática desligada (KDS). Toque para ativar."} className={`h-11 px-4 rounded-xl text-xs font-bold flex items-center gap-2 ${autoPrint ? "bg-emerald-500 text-white" : "bg-white border text-slate-600"}`}>
+        {autoPrint ? <PrinterCheck className="w-4 h-4" /> : <Printer className="w-4 h-4" />} {autoPrint ? "Impressão automática" : "Sem impressão (KDS)"}
+      </button>
+      <button data-testid="fullscreen-toggle" onClick={toggleFullscreen} className="h-11 px-4 rounded-xl bg-slate-900 text-white text-xs font-bold flex items-center gap-2 hover:bg-slate-700">
+        {fullscreen ? <><Minimize2 className="w-4 h-4" /> Sair da tela cheia</> : <><Maximize2 className="w-4 h-4" /> Tela cheia</>}
+      </button>
+    </div>
   );
 
   const board = (
@@ -161,7 +183,10 @@ export default function MerchantOrders() {
                   <div key={o.id} className={`bg-white rounded-xl border shadow-sm p-3 ${isNew ? "new-order-blink" : ""}`} data-testid={`order-ticket-${o.code.replace("#", "")}`} data-new={isNew ? "true" : undefined}>
                     <div className="flex items-center justify-between">
                       <p className="font-display font-extrabold text-slate-900">{o.code}</p>
-                      <span className={`text-[11px] font-bold ${elapsedColor(elapsed(o.created_at))}`}>{elapsed(o.created_at)} min</span>
+                      <div className="flex items-center gap-2">
+                        <button data-testid={`print-${o.code.replace("#", "")}`} onClick={() => printOrder(o, restNameRef.current)} title="Imprimir pedido" className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500"><Printer className="w-4 h-4" /></button>
+                        <span className={`text-[11px] font-bold ${elapsedColor(elapsed(o.created_at))}`}>{elapsed(o.created_at)} min</span>
+                      </div>
                     </div>
                     <p className="text-xs text-slate-500">{o.customer_name} • {PAYMENT_LABELS[o.payment_method]} • {o.delivery_type === "pickup" ? "Retirada" : "Entrega"}{o.courier_name ? ` • ${o.courier_name}` : ""}</p>
                     <div className="mt-2 space-y-0.5">

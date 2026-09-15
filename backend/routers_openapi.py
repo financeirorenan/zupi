@@ -220,3 +220,16 @@ async def create_lead(data: LeadIn):
 @router.get("/admin/leads")
 async def admin_leads(user=Depends(require_roles("admin"))):
     return await db.leads.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
+
+
+class LeadStatusIn(BaseModel):
+    status: str = Field(pattern="^(new|contacted|closed)$")
+    notes: str = ""
+
+
+@router.patch("/admin/leads/{lid}")
+async def admin_lead_status(lid: str, data: LeadStatusIn, user=Depends(require_roles("admin"))):
+    res = await db.leads.update_one({"id": lid}, {"$set": {**data.model_dump(), "updated_at": now_iso()}})
+    if not res.matched_count:
+        raise HTTPException(404, "Lead não encontrado")
+    return await db.leads.find_one({"id": lid}, {"_id": 0})

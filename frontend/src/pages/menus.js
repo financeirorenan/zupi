@@ -1,4 +1,4 @@
-import { LayoutDashboard, ClipboardList, UtensilsCrossed, Ticket, Wallet, Star, Settings, Store, Users, MapPin, Megaphone, Bike, Plug } from "lucide-react";
+import { LayoutDashboard, ClipboardList, UtensilsCrossed, Ticket, Wallet, Star, Settings, Store, Users, MapPin, Megaphone, Bike, Plug, Inbox } from "lucide-react";
 
 export const MERCHANT_MENU = [
   { to: "/lojista", icon: LayoutDashboard, label: "Dashboard", end: true },
@@ -18,6 +18,7 @@ export const ADMIN_MENU = [
   { to: "/admin/clientes", icon: Users, label: "Clientes" },
   { to: "/admin/cidades", icon: MapPin, label: "Cidades" },
   { to: "/admin/marketing", icon: Megaphone, label: "Marketing" },
+  { to: "/admin/leads", icon: Inbox, label: "Leads" },
   { to: "/admin/financeiro", icon: Wallet, label: "Financeiro" },
   { to: "/admin/sistema", icon: Settings, label: "Sistema" },
 ];

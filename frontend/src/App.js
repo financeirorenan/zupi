@@ -40,6 +40,7 @@ import AdminCities from "@/pages/admin/AdminCities";
 import AdminMarketing from "@/pages/admin/AdminMarketing";
 import AdminFinance from "@/pages/admin/AdminFinance";
 import AdminSystem from "@/pages/admin/AdminSystem";
+import AdminLeads from "@/pages/admin/AdminLeads";
 
 function App() {
   return (
@@ -83,6 +84,7 @@ function App() {
               <Route path="/admin/marketing" element={<ProtectedRoute roles={["admin"]}><AdminMarketing /></ProtectedRoute>} />
               <Route path="/admin/financeiro" element={<ProtectedRoute roles={["admin"]}><AdminFinance /></ProtectedRoute>} />
               <Route path="/admin/sistema" element={<ProtectedRoute roles={["admin"]}><AdminSystem /></ProtectedRoute>} />
+              <Route path="/admin/leads" element={<ProtectedRoute roles={["admin"]}><AdminLeads /></ProtectedRoute>} />
 
               <Route path="*" element={<Home />} />
             </Routes>

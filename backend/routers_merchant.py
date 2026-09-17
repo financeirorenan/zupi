@@ -85,6 +85,8 @@ async def set_auto_print(data: AutoPrintIn, user=Depends(merchant)):
 @router.post("/pause")
 async def pause_restaurant(data: PauseIn, user=Depends(merchant)):
     r = await get_merchant_restaurant(user)
+    if r.get("billing_blocked") and not data.paused:
+        raise HTTPException(403, "Loja pausada por fatura Zupi em atraso. Regularize o pagamento para reativar.")
     await db.restaurants.update_one({"id": r["id"]}, {"$set": {"paused": data.paused}})
     return {"paused": data.paused}
 

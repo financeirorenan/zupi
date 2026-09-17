@@ -19,7 +19,7 @@ export default function AdminBilling() {
   const [tab, setTab] = useState("faturas");
   const [cfg, setCfg] = useState(null);
 
-  const load = () => api.get("/admin/billing").then((r) => { setData(r.data); setCfg({ billing_period: r.data.default_period, billing_due_days: r.data.due_days, billing_pix_key: r.data.pix_key, billing_pix_name: r.data.pix_name }); }).catch(() => setData(false));
+  const load = () => api.get("/admin/billing").then((r) => { setData(r.data); setCfg({ billing_period: r.data.default_period, billing_due_days: r.data.due_days, billing_block_days: r.data.block_days, billing_pix_key: r.data.pix_key, billing_pix_name: r.data.pix_name }); }).catch(() => setData(false));
   useEffect(() => { load(); }, []);
 
   const generate = async () => {
@@ -35,7 +35,7 @@ export default function AdminBilling() {
   const reopen = async (inv) => { await api.post(`/admin/billing/${inv.id}/reopen`); toast.success("Fatura reaberta"); load(); };
   const setPeriod = async (rid, p) => { await api.put(`/admin/billing/restaurants/${rid}/period`, { billing_period: p }); toast.success("Periodicidade atualizada"); load(); };
   const saveCfg = async () => {
-    try { await api.put("/admin/billing/settings", { ...cfg, billing_due_days: parseInt(cfg.billing_due_days, 10) || 5 }); toast.success("Configurações de cobrança salvas"); load(); } catch (e) { toast.error(apiError(e)); }
+    try { await api.put("/admin/billing/settings", { ...cfg, billing_due_days: parseInt(cfg.billing_due_days, 10) || 5, billing_block_days: parseInt(cfg.billing_block_days, 10) || 7 }); toast.success("Configurações de cobrança salvas"); load(); } catch (e) { toast.error(apiError(e)); }
   };
 
   if (data === null) return <DashboardLayout menu={ADMIN_MENU} title="Faturas"><Loading /></DashboardLayout>;
@@ -98,7 +98,7 @@ export default function AdminBilling() {
             <tbody>
               {data.restaurants.map((r) => (
                 <tr key={r.id} className="border-b last:border-0">
-                  <td className="px-4 py-3 font-semibold">{r.name}</td>
+                  <td className="px-4 py-3 font-semibold">{r.name}{r.billing_blocked && <span data-testid={`blocked-badge-${r.id}`} className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">PAUSADA</span>}</td>
                   <td className="px-4 py-3 text-slate-600">{r.city}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1.5">
@@ -125,6 +125,11 @@ export default function AdminBilling() {
           <div>
             <label className="text-sm font-semibold text-slate-700">Dias para vencimento após o fechamento</label>
             <Input data-testid="cfg-due-days" type="number" min="1" max="30" value={cfg.billing_due_days} onChange={(e) => setCfg({ ...cfg, billing_due_days: e.target.value })} className="mt-1 h-12 rounded-xl w-32" />
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-slate-700">Pausar loja automaticamente após (dias de atraso)</label>
+            <Input data-testid="cfg-block-days" type="number" min="1" max="60" value={cfg.billing_block_days} onChange={(e) => setCfg({ ...cfg, billing_block_days: e.target.value })} className="mt-1 h-12 rounded-xl w-32" />
+            <p className="text-xs text-slate-400 mt-1">A loja é reativada sozinha quando a fatura é marcada como paga. {data.blocked_count ? <b className="text-red-600">{data.blocked_count} loja(s) pausada(s) agora.</b> : ""}</p>
           </div>
           <div>
             <label className="text-sm font-semibold text-slate-700">Chave Pix da Zupi (aparece na fatura)</label>

@@ -122,6 +122,7 @@ async def merchant_billing(user=Depends(merchant)):
     invoices = await db.invoices.find({"restaurant_id": r["id"]}, {"_id": 0}).sort("period_start", -1).to_list(60)
     settings = await get_settings()
     return {"current": await current_period(r), "invoices": invoices,
+            "billing_blocked": bool(r.get("billing_blocked")), "block_days": settings.get("billing_block_days", 7),
             "open_total": round(sum(i["amount"] for i in invoices if i["status"] in ("open", "overdue")), 2),
             "pix_key": settings.get("billing_pix_key", ""), "pix_name": settings.get("billing_pix_name", settings.get("platform_name", "Zupi Delivery"))}
 
@@ -143,16 +144,18 @@ async def merchant_invoice(iid: str, user=Depends(merchant)):
 @router.get("/admin/billing")
 async def admin_billing(status: str | None = None, user=Depends(admin)):
     await close_due_invoices()
+    await enforce_billing_blocks()
     filt = {"status": status} if status else {}
     invoices = await db.invoices.find(filt, {"_id": 0}).sort([("status", 1), ("due_date", 1)]).to_list(500)
     allinv = await db.invoices.find({}, {"_id": 0, "status": 1, "amount": 1}).to_list(5000)
     totals = {s: round(sum(i["amount"] for i in allinv if i["status"] == s), 2) for s in ("open", "overdue", "paid")}
     settings = await get_settings()
-    restaurants = await db.restaurants.find({"status": "active"}, {"_id": 0, "id": 1, "name": 1, "city": 1, "billing_period": 1}).sort("name", 1).to_list(500)
+    restaurants = await db.restaurants.find({"status": "active"}, {"_id": 0, "id": 1, "name": 1, "city": 1, "billing_period": 1, "billing_blocked": 1}).sort("name", 1).to_list(500)
     for r in restaurants:
         r["billing_period"] = r.get("billing_period") or settings.get("billing_period", "monthly")
     return {"invoices": invoices, "totals": totals, "counts": {s: len([i for i in allinv if i["status"] == s]) for s in ("open", "overdue", "paid")},
             "restaurants": restaurants, "default_period": settings.get("billing_period", "monthly"), "due_days": settings.get("billing_due_days", 5),
+            "block_days": settings.get("billing_block_days", 7), "blocked_count": len([r for r in restaurants if r.get("billing_blocked")]),
             "pix_key": settings.get("billing_pix_key", ""), "pix_name": settings.get("billing_pix_name", "")}
 
 
@@ -172,6 +175,7 @@ async def admin_mark_paid(iid: str, data: PayIn, user=Depends(admin)):
     if not inv:
         raise HTTPException(404, "Fatura não encontrada")
     await db.invoices.update_one({"id": iid}, {"$set": {"status": "paid", "paid_at": now_iso(), "payment_note": data.payment_note}})
+    await enforce_billing_blocks()
     r = await db.restaurants.find_one({"id": inv["restaurant_id"]}, {"_id": 0, "owner_id": 1})
     await notify(r.get("owner_id") if r else None, f"Pagamento da fatura {inv['number']} confirmado", "Obrigado! Sua fatura Zupi foi marcada como paga.", "invoice")
     await audit(user["id"], "pay", "invoice", iid, before={"status": inv["status"]}, after={"status": "paid"})
@@ -203,6 +207,7 @@ async def admin_set_period(rid: str, data: PeriodIn, user=Depends(admin)):
 class BillingSettingsIn(BaseModel):
     billing_period: str = Field(pattern="^(weekly|biweekly|monthly)$")
     billing_due_days: int = Field(ge=1, le=30)
+    billing_block_days: int = Field(default=7, ge=1, le=60)
     billing_pix_key: str = ""
     billing_pix_name: str = ""
 
@@ -215,8 +220,34 @@ async def admin_billing_settings(data: BillingSettingsIn, user=Depends(admin)):
 
 # ---------------- Cron: lembrete de vencimento ----------------
 
+async def enforce_billing_blocks() -> dict:
+    """Pausa lojas com fatura vencida há mais de N dias; libera quando quitadas."""
+    settings = await get_settings()
+    grace = int(settings.get("billing_block_days", 7))
+    today = datetime.now(TZ).date()
+    limit = (today - timedelta(days=grace)).isoformat()
+    blocked = unblocked = 0
+    overdue_rids = set(await db.invoices.distinct("restaurant_id", {"status": "overdue", "due_date": {"$lt": limit}}))
+    for rid in overdue_rids:
+        r = await db.restaurants.find_one({"id": rid}, {"_id": 0, "owner_id": 1, "billing_blocked": 1, "name": 1})
+        if not r or r.get("billing_blocked"):
+            continue
+        await db.restaurants.update_one({"id": rid}, {"$set": {"paused": True, "billing_blocked": True, "billing_blocked_at": now_iso()}})
+        await notify(r.get("owner_id"), "Loja pausada por fatura em atraso",
+                     f"Sua fatura Zupi está vencida há mais de {grace} dias. Pague via Pix para reativar a loja automaticamente.", "invoice")
+        await audit("system", "billing_block", "restaurant", rid, after={"grace_days": grace})
+        blocked += 1
+    async for r in db.restaurants.find({"billing_blocked": True, "id": {"$nin": list(overdue_rids)}}, {"_id": 0, "id": 1, "owner_id": 1}):
+        await db.restaurants.update_one({"id": r["id"]}, {"$set": {"paused": False, "billing_blocked": False}, "$unset": {"billing_blocked_at": ""}})
+        await notify(r.get("owner_id"), "Loja reativada", "Pagamento confirmado — sua loja voltou a receber pedidos na Zupi.", "invoice")
+        await audit("system", "billing_unblock", "restaurant", r["id"])
+        unblocked += 1
+    return {"blocked": blocked, "unblocked": unblocked}
+
+
 async def send_invoice_reminders() -> dict:
     await close_due_invoices()
+    await enforce_billing_blocks()
     today = datetime.now(TZ).date()
     target = (today + timedelta(days=2)).isoformat()
     sent = 0

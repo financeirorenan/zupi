@@ -73,3 +73,4 @@ Ver `/app/memory/test_credentials.md` (admin: financeirorenanuk@gmail.com / Zupi
 - Central de Pedidos tela cheia: CSS por orientação (.kanban-fs/.kanban-col-fs) — landscape 6 colunas, portrait 2 colunas com scroll-snap.
 - Lembrete de fatura: cron diário 09:00 SP (.emergent/crons.yml → POST /api/cron/invoice-reminders, Bearer WEBHOOK_CRON_SECRET, idempotente por X-Webhook-Id) notifica lojista 2 dias antes do vencimento e faturas vencidas; também fecha períodos encerrados.
 - Sino de notificações clicável (suporte/fatura/lead/pedido navegam).
+- Bloqueio por inadimplência: cron/admin billing/pagamento chamam enforce_billing_blocks() — fatura vencida há > billing_block_days (padrão 7, configurável em /admin/faturas > Configuração) pausa a loja (paused + billing_blocked), lojista não consegue despausar (403), reativação automática ao marcar paga; notificações e auditoria. Alertas em MerchantBilling e badge PAUSADA no admin.

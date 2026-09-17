@@ -34,6 +34,13 @@ export default function MerchantBilling() {
         </div>
       </div>
 
+      {data.billing_blocked && (
+        <div className="rounded-xl border-2 border-red-400 bg-red-50 p-4" data-testid="billing-blocked-alert">
+          <p className="font-display font-extrabold text-red-700">Loja pausada por fatura em atraso</p>
+          <p className="text-sm text-red-700/80 mt-1">Há fatura Zupi vencida há mais de {data.block_days} dias. Assim que o pagamento for confirmado pela Zupi, sua loja volta a receber pedidos automaticamente.</p>
+        </div>
+      )}
+
       {data.open_total > 0 && (
         <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 flex flex-wrap items-center gap-3" data-testid="billing-open-alert">
           <p className="text-sm font-semibold text-amber-800 flex-1">Você tem {fmtBRL(data.open_total)} em fatura(s) a pagar.</p>

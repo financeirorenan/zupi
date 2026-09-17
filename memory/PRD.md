@@ -66,7 +66,10 @@ Ver `/app/memory/test_credentials.md` (admin: financeirorenanuk@gmail.com / Zupi
 - Lojas de apps: /app/mobile/android-twa (twa-manifest.json + README Bubblewrap), /app/mobile/ios-capacitor (capacitor.config.json, package.json, README Xcode/App Store), frontend/public/.well-known/assetlinks.json (preencher SHA-256) e apple-app-site-association (preencher Team ID), página /privacidade (LGPD) exigida pelas lojas.
 - Faturamento do lojista (cobrança da taxa por pedido por período): routers_billing.py — períodos semanal/quinzenal/mensal (padrão em settings, por restaurante via admin), faturas geradas automaticamente ao fechar período (idempotente, ao abrir /admin/faturas ou Financeiro do lojista, ou botão "Gerar"), status open/overdue/paid, marcar paga/reabrir, chave Pix da Zupi na fatura, impressão A4 (lib/printInvoice.js). Admin: /admin/faturas. Lojista: card "Fatura Zupi" no Financeiro. Testado via curl; UI não testada pelo testing_agent ainda.
 
-## PENDENTE (reportado pelo usuário em 2026-06, não iniciado)
-1. Suporte no marketplace: cliente não consegue abrir o chamado para ver a resposta nem responder. Precisa de GET /api/support/{id}, POST /api/support/{id}/messages (cliente) e tela de thread em Profile.jsx (aba suporte). Admin reply já existe em routers_admin.py.
-2. Painel do lojista deve acompanhar rotação de tela (portrait/landscape) — kanban em tela cheia com 6 colunas fica estreito em portrait; ajustar CSS por orientação.
-3. Admin precisa abrir o painel do lojista para dar suporte (impersonação): POST /api/admin/restaurants/{rid}/impersonate (cookie do owner com flag impersonated_by) + banner "Voltar ao admin" no TopLayout + botão em AdminRestaurants.
+
+## 2026-06 — Suporte, impersonação, rotação, lembrete de fatura (testado: test_reports/iteration_3.json)
+- Suporte: cliente abre thread do chamado em /perfil?aba=suporte, vê respostas do Suporte Zupi e responde (GET /api/support/{id}, POST /api/support/{id}/messages; reabre ticket fechado; admins notificados).
+- Impersonação: admin "Abrir painel" em /admin/restaurantes → POST /api/admin/restaurants/{rid}/impersonate (JWT com claim imp) → banner roxo "Modo suporte" no painel lojista → "Voltar ao admin" (POST /api/auth/impersonate/stop). Auditado.
+- Central de Pedidos tela cheia: CSS por orientação (.kanban-fs/.kanban-col-fs) — landscape 6 colunas, portrait 2 colunas com scroll-snap.
+- Lembrete de fatura: cron diário 09:00 SP (.emergent/crons.yml → POST /api/cron/invoice-reminders, Bearer WEBHOOK_CRON_SECRET, idempotente por X-Webhook-Id) notifica lojista 2 dias antes do vencimento e faturas vencidas; também fecha períodos encerrados.
+- Sino de notificações clicável (suporte/fatura/lead/pedido navegam).

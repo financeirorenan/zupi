@@ -1,0 +1,35 @@
+{
+  "summary": "Iteration 3 tested backend + frontend for support threads, admin impersonation, cron invoice reminders, billing (admin+lojista), fullscreen orders orientation (landscape/portrait), notifications-bell navigation and merchant billing print. Backend: 13/13 novos testes pytest passaram (test_zupi_v3.py). Frontend Playwright: todos os fluxos críticos passaram — cliente cria e responde ticket, admin impersona lojista via /admin/restaurantes → banner roxo + /lojista/pedidos → impersonation-stop volta para admin (role=admin, sem impersonated_by); /admin/faturas mostra 3 totals cards, invoices-table, tabs (faturas/periodos/config) funcionando; cfg-pix-key salva; /lojista/financeiro exibe merchant-billing (card billing-current e tabela merchant-invoices), merchant-invoice-print gera iframe data-testid=print-frame contendo 'Fatura ZP-'; sino notifications-button lista 9 notifs, clique em notif de fatura navega para /lojista/financeiro; fullscreen orders: LANDSCAPE 1180x820 mostra 6 kanban-col-* com largura ~182px cada sem scroll horizontal (scrollWidth==clientWidth 1156); PORTRAIT 820x1180 mostra colunas com ~49% da largura (392px), com scroll horizontal (scrollWidth 2412 > 796).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_zupi_v3.py",
+    "/app/test_reports/pytest/pytest_v3.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "routers_billing.py:93-96 — o bloco if/else de update_many para status overdue é redundante (mesma operação em ambos os ramos). Simplificar removendo o if/else.",
+    "routers_billing.py:81 — sequencial de numero da fatura usa db.invoices.count_documents({}) + 1 dentro de um loop sem lock. Sob concorrência pode gerar duplicatas de número (não crítico, pois idempotência por (restaurant_id, period_start, period_end) evita duplo insert, mas o número pode não ser único). Considerar unique index em 'number' e/ou counter atômico.",
+    "security.py:53 — set_auth_cookies emite com samesite='none'; secure=True está OK atrás do ingress HTTPS. Cookie do impersonate substitui o cookie do admin — não há como manter ambos. O JWT tem claim 'imp' que permite reverter. Funciona corretamente, mas se sessão expirar durante impersonação, admin precisa re-logar (ok pelo design).",
+    "routers_auth.py:151 — jwt_error() é chamado como se retornasse a exceção; na verdade retorna tupla usada em 'except'. Nomeação é confusa; considerar renomear a função para 'jwt_errors' ou simplesmente importar as exceções no topo.",
+    "routers_customer.py:393 — quando cliente responde a ticket, sempre define status='open' (reabre). Correto conforme spec. Também dispara notificação para TODOS os admins — pode ser barulhento em produção; considerar limitar a admins ativos ou atribuir ticket a um.",
+    "MerchantOrders.jsx (fullscreen CSS) — o comportamento é controlado por CSS puro (orientation media query). Mudança de orientação em runtime dentro de fullscreen HTML nativo pode ficar preso no estado antigo em alguns browsers; testado via viewport apenas. Considerar recomputar em resize/orientationchange listener."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_zupi_v3.py"
+  ],
+  "success_rate": {"backend": "100% (13/13)", "frontend": "100% (7/7 fluxos)"},
+  "test_credentials": "OK — /app/memory/test_credentials.md",
+  "seed_data_creation": "Criados alguns tickets TEST_UI_* e TEST_ticket pelo suporte durante os testes. Não excluídos (não afetam produção).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Test suite total agora: test_zupi_api.py + test_zupi_v2.py + test_zupi_v3.py (~ 73 testes). Login endpoint é /entrar (não /login). Impersonação: chamar POST /api/admin/restaurants/{rid}/impersonate substitui cookie de sessão pelo do lojista com claim 'imp'; /api/auth/me traz 'impersonated_by'; POST /api/auth/impersonate/stop retorna cookies admin (400 se não estiver impersonando). Cron requer Bearer WEBHOOK_CRON_SECRET; deduplicação por X-Webhook-Id (coleção db.cron_runs). Fullscreen orders usa media query orientation: portrait→2 colunas 49% + scroll horizontal; landscape→6 colunas caben lado a lado. Notifications bell: notif tipo 'invoice' navega para /lojista/financeiro.",
+  "rca of the issue": "N/A — sem bugs. Apenas observações de qualidade em critical_code_review_comments."
+}

@@ -64,3 +64,9 @@ Ver `/app/memory/test_credentials.md` (admin: financeirorenanuk@gmail.com / Zupi
 
 - Imagens leves: upload redimensiona para máx. 1280px, converte para WebP q82, corrige EXIF; limite de entrada 12MB; GIF animado preservado.
 - Lojas de apps: /app/mobile/android-twa (twa-manifest.json + README Bubblewrap), /app/mobile/ios-capacitor (capacitor.config.json, package.json, README Xcode/App Store), frontend/public/.well-known/assetlinks.json (preencher SHA-256) e apple-app-site-association (preencher Team ID), página /privacidade (LGPD) exigida pelas lojas.
+- Faturamento do lojista (cobrança da taxa por pedido por período): routers_billing.py — períodos semanal/quinzenal/mensal (padrão em settings, por restaurante via admin), faturas geradas automaticamente ao fechar período (idempotente, ao abrir /admin/faturas ou Financeiro do lojista, ou botão "Gerar"), status open/overdue/paid, marcar paga/reabrir, chave Pix da Zupi na fatura, impressão A4 (lib/printInvoice.js). Admin: /admin/faturas. Lojista: card "Fatura Zupi" no Financeiro. Testado via curl; UI não testada pelo testing_agent ainda.
+
+## PENDENTE (reportado pelo usuário em 2026-06, não iniciado)
+1. Suporte no marketplace: cliente não consegue abrir o chamado para ver a resposta nem responder. Precisa de GET /api/support/{id}, POST /api/support/{id}/messages (cliente) e tela de thread em Profile.jsx (aba suporte). Admin reply já existe em routers_admin.py.
+2. Painel do lojista deve acompanhar rotação de tela (portrait/landscape) — kanban em tela cheia com 6 colunas fica estreito em portrait; ajustar CSS por orientação.
+3. Admin precisa abrir o painel do lojista para dar suporte (impersonação): POST /api/admin/restaurants/{rid}/impersonate (cookie do owner com flag impersonated_by) + banner "Voltar ao admin" no TopLayout + botão em AdminRestaurants.

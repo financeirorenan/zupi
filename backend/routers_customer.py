@@ -370,3 +370,28 @@ async def create_ticket(data: TicketIn, user=Depends(require_roles("customer", "
 @router.get("/support/mine")
 async def my_tickets(user=Depends(require_roles("customer", "restaurant"))):
     return await db.support_tickets.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+
+
+@router.get("/support/{tid}")
+async def my_ticket(tid: str, user=Depends(require_roles("customer", "restaurant"))):
+    t = await db.support_tickets.find_one({"id": tid, "user_id": user["id"]}, {"_id": 0})
+    if not t:
+        raise HTTPException(404, "Chamado não encontrado")
+    return t
+
+
+class TicketMessageIn(BaseModel):
+    message: str = Field(min_length=1, max_length=1000)
+
+
+@router.post("/support/{tid}/messages")
+async def reply_my_ticket(tid: str, data: TicketMessageIn, user=Depends(require_roles("customer", "restaurant"))):
+    t = await db.support_tickets.find_one({"id": tid, "user_id": user["id"]}, {"_id": 0})
+    if not t:
+        raise HTTPException(404, "Chamado não encontrado")
+    msg = {"from": user["name"], "from_role": user["role"], "text": data.message, "at": now_iso()}
+    await db.support_tickets.update_one({"id": tid}, {"$push": {"messages": msg}, "$set": {"status": "open", "updated_at": now_iso(), "unread_admin": True}})
+    admins = await db.users.find({"role": "admin"}, {"_id": 0, "id": 1}).to_list(50)
+    for a in admins:
+        await notify(a["id"], f"Suporte: {t['subject']}", f"{user['name']}: {data.message[:100]}", "support", tid)
+    return await db.support_tickets.find_one({"id": tid}, {"_id": 0})

@@ -187,11 +187,11 @@ export default function MerchantOrders() {
   );
 
   const board = (
-    <div className={`flex gap-3 ${fullscreen ? "h-full" : "overflow-x-auto no-scrollbar pb-4 -mx-1 px-1"}`} data-testid="orders-kanban">
+    <div className={`flex gap-3 ${fullscreen ? "h-full kanban-fs" : "overflow-x-auto no-scrollbar pb-4 -mx-1 px-1"}`} data-testid="orders-kanban">
         {COLUMNS.map((col) => {
           const list = colOrders(col.id);
           return (
-            <div key={col.id} className={`${fullscreen ? "flex-1 min-w-0" : "shrink-0 w-72 max-h-[calc(100vh-140px)]"} rounded-2xl border-t-4 ${col.color} border-x border-b flex flex-col`} data-testid={`kanban-col-${col.id.toLowerCase()}`}>
+            <div key={col.id} className={`${fullscreen ? "kanban-col-fs" : "shrink-0 w-72 max-h-[calc(100vh-140px)]"} rounded-2xl border-t-4 ${col.color} border-x border-b flex flex-col`} data-testid={`kanban-col-${col.id.toLowerCase()}`}>
               <div className="p-3 flex items-center justify-between">
                 <p className="font-display font-bold text-sm text-slate-800">{col.label}</p>
                 <span className={`text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border ${col.id === "PENDING" && list.length ? "bg-amber-400 text-white border-amber-400 animate-pulse" : "bg-white text-slate-700"}`}>{list.length}</span>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { MapPin, Plus, Trash2, User, LifeBuoy, LogOut, Pencil } from "lucide-react";
+import { MapPin, Plus, Trash2, User, LifeBuoy, LogOut, Pencil, ChevronDown, Send } from "lucide-react";
 import CustomerLayout from "@/components/CustomerLayout";
 import PushToggle from "@/components/PushToggle";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,17 @@ export default function Profile() {
 
   const loadAddresses = () => api.get("/addresses").then((r) => setAddresses(r.data)).catch(() => {});
   const loadTickets = () => api.get("/support/mine").then((r) => setTickets(r.data)).catch(() => {});
+  const [activeTicket, setActiveTicket] = useState(params.get("chamado") || null);
+  const [reply, setReply] = useState("");
+  const sendReply = async (t) => {
+    if (reply.trim().length < 1) return;
+    try {
+      await api.post(`/support/${t.id}/messages`, { message: reply.trim() });
+      setReply("");
+      toast.success("Mensagem enviada ao suporte");
+      loadTickets();
+    } catch (e) { toast.error(apiError(e)); }
+  };
 
   useEffect(() => {
     if (tab === "enderecos") loadAddresses();
@@ -170,21 +181,43 @@ export default function Profile() {
               <Textarea data-testid="ticket-message" placeholder="Descreva o que aconteceu..." value={ticket.message} onChange={(e) => setTicket({ ...ticket, message: e.target.value })} rows={3} className="rounded-xl" />
               <Button data-testid="ticket-submit" onClick={sendTicket} disabled={ticket.subject.length < 3 || ticket.message.length < 3} className="h-12 rounded-xl font-bold">Enviar</Button>
             </div>
-            {tickets.map((t) => (
-              <div key={t.id} className="bg-white rounded-2xl border p-4" data-testid={`ticket-${t.id.slice(0, 8)}`}>
-                <div className="flex justify-between items-center">
-                  <p className="font-bold text-sm text-slate-800">{t.subject}</p>
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${t.status === "open" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>
+            {tickets.map((t) => {
+              const openT = activeTicket === t.id;
+              const last = t.messages[t.messages.length - 1];
+              return (
+              <div key={t.id} className="bg-white rounded-2xl border" data-testid={`ticket-${t.id.slice(0, 8)}`}>
+                <button data-testid={`ticket-open-${t.id.slice(0, 8)}`} onClick={() => setActiveTicket(openT ? null : t.id)} className="w-full text-left p-4 flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm text-slate-800 truncate">{t.subject}</p>
+                    <p className="text-xs text-slate-500 truncate">{last?.from_role === "admin" ? "Suporte Zupi: " : ""}{last?.text}</p>
+                  </div>
+                  {last?.from_role === "admin" && !openT && <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shrink-0" data-testid={`ticket-unread-${t.id.slice(0, 8)}`} />}
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded-full shrink-0 ${t.status === "open" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>
                     {t.status === "open" ? "Aberto" : "Resolvido"}
                   </span>
-                </div>
-                <div className="mt-2 space-y-2">
-                  {t.messages.map((m, i) => (
-                    <p key={i} className="text-xs text-slate-600"><b>{m.from}:</b> {m.text} <span className="text-slate-300">({fmtDateTime(m.at)})</span></p>
-                  ))}
-                </div>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${openT ? "rotate-180" : ""}`} />
+                </button>
+                {openT && (
+                  <div className="px-4 pb-4 space-y-3" data-testid={`ticket-thread-${t.id.slice(0, 8)}`}>
+                    <div className="space-y-2 max-h-72 overflow-y-auto">
+                      {t.messages.map((m, i) => (
+                        <div key={i} className={`flex ${m.from_role === "admin" ? "justify-start" : "justify-end"}`}>
+                          <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${m.from_role === "admin" ? "bg-slate-100 text-slate-800" : "bg-orange-600 text-white"}`}>
+                            <p className="text-[10px] font-bold opacity-70 mb-0.5">{m.from_role === "admin" ? "Suporte Zupi" : "Você"} • {fmtDateTime(m.at)}</p>
+                            <p>{m.text}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Input data-testid={`ticket-reply-input-${t.id.slice(0, 8)}`} placeholder={t.status === "open" ? "Responder ao suporte..." : "Reabrir chamado com uma nova mensagem..."} value={reply} onChange={(e) => setReply(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendReply(t)} className="h-11 rounded-xl flex-1" />
+                      <Button data-testid={`ticket-reply-send-${t.id.slice(0, 8)}`} onClick={() => sendReply(t)} disabled={reply.trim().length < 1} className="h-11 rounded-xl font-bold"><Send className="w-4 h-4" /></Button>
+                    </div>
+                  </div>
+                )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

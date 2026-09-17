@@ -1,9 +1,9 @@
 from datetime import datetime, timezone, timedelta
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Response
 from pydantic import BaseModel, Field
 
 from database import db
-from security import require_roles, hash_password
+from security import require_roles, hash_password, set_auth_cookies, public_user
 from utils import uid, now_iso, audit, can_transition, notify, STATUS_LABELS
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -146,6 +146,21 @@ async def block_restaurant(rid: str, user=Depends(admin)):
     await db.restaurants.update_one({"id": rid}, {"$set": {"status": new}})
     await audit(user["id"], "block" if new == "blocked" else "unblock", "restaurant", rid, before={"status": r.get("status")}, after={"status": new})
     return {"status": new}
+
+
+@router.post("/restaurants/{rid}/impersonate")
+async def impersonate_merchant(rid: str, response: Response, user=Depends(admin)):
+    r = await db.restaurants.find_one({"id": rid}, {"_id": 0})
+    if not r:
+        raise HTTPException(404, "Restaurante não encontrado")
+    owner = await db.users.find_one({"id": r.get("owner_id")})
+    if not owner:
+        raise HTTPException(404, "Lojista dono do restaurante não encontrado")
+    set_auth_cookies(response, owner, impersonated_by=user["id"])
+    await audit(user["id"], "impersonate", "restaurant", rid, after={"owner_id": owner["id"]})
+    u = public_user(owner)
+    u["impersonated_by"] = user["id"]
+    return u
 
 
 @router.get("/users")

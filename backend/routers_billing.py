@@ -1,5 +1,7 @@
+import hmac
+import os
 from datetime import datetime, timedelta, timezone, date
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
 from pydantic import BaseModel, Field
 
 from database import db
@@ -209,3 +211,38 @@ class BillingSettingsIn(BaseModel):
 async def admin_billing_settings(data: BillingSettingsIn, user=Depends(admin)):
     await db.settings.update_one({"id": "platform"}, {"$set": data.model_dump()}, upsert=True)
     return await get_settings()
+
+
+# ---------------- Cron: lembrete de vencimento ----------------
+
+async def send_invoice_reminders() -> dict:
+    await close_due_invoices()
+    today = datetime.now(TZ).date()
+    target = (today + timedelta(days=2)).isoformat()
+    sent = 0
+    async for inv in db.invoices.find({"status": {"$in": ["open", "overdue"]}, "reminder_sent": {"$ne": True}, "due_date": {"$lte": target}}):
+        r = await db.restaurants.find_one({"id": inv["restaurant_id"]}, {"_id": 0, "owner_id": 1})
+        if r and r.get("owner_id"):
+            venc = inv["due_date"][8:10] + "/" + inv["due_date"][5:7]
+            late = inv["due_date"] < today.isoformat()
+            await notify(r["owner_id"],
+                         f"Fatura Zupi {inv['number']} {'vencida' if late else 'vence em ' + venc}",
+                         f"Valor R$ {inv['amount']:.2f}. {'Regularize para manter sua loja ativa.' if late else 'Pague via Pix e mantenha sua loja em dia.'}", "invoice")
+            sent += 1
+        await db.invoices.update_one({"_id": inv["_id"]}, {"$set": {"reminder_sent": True, "reminder_at": now_iso()}})
+    return {"sent": sent}
+
+
+@router.post("/cron/invoice-reminders")
+async def cron_invoice_reminders(request: Request, background_tasks: BackgroundTasks):
+    # Cron endpoints must ack 2xx immediately; enqueue/background the actual work.
+    auth = request.headers.get("Authorization", "")
+    secret = os.environ.get("WEBHOOK_CRON_SECRET", "")
+    if not auth.startswith("Bearer ") or not secret or not hmac.compare_digest(auth[7:], secret):
+        raise HTTPException(401, "Não autorizado")
+    run_id = request.headers.get("X-Webhook-Id") or uid()
+    if await db.cron_runs.find_one({"run_id": run_id}):
+        return {"status": "duplicate"}
+    await db.cron_runs.insert_one({"run_id": run_id, "job": "invoice-reminders", "at": now_iso()})
+    background_tasks.add_task(send_invoice_reminders)
+    return {"status": "accepted", "run_id": run_id}

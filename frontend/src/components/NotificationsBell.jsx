@@ -1,12 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import { Bell } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { api, fmtDateTime } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export default function NotificationsBell({ light = false, poll = 30000 }) {
   const [data, setData] = useState(null);
   const lastSeen = useRef(null);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const linkFor = (n) => {
+    if (n.type === "support") return user?.role === "admin" ? "/admin/sistema" : `/perfil?aba=suporte&chamado=${n.order_id || ""}`;
+    if (n.type === "invoice") return user?.role === "admin" ? "/admin/faturas" : "/lojista/financeiro";
+    if (n.type === "lead") return "/admin/leads";
+    if (n.type === "order" && n.order_id) return user?.role === "restaurant" ? "/lojista/pedidos" : `/pedido/${n.order_id}`;
+    return null;
+  };
   const load = () => api.get("/notifications").then((r) => {
     const newest = r.data.items?.[0];
     if (newest && lastSeen.current && newest.id !== lastSeen.current && !newest.read) {
@@ -43,11 +54,11 @@ export default function NotificationsBell({ light = false, poll = 30000 }) {
         <div className="max-h-80 overflow-y-auto" data-testid="notifications-list">
           {!data?.items?.length && <p className="text-sm text-slate-400 text-center py-8">Nenhuma notificação</p>}
           {data?.items?.map((n) => (
-            <div key={n.id} className={`px-4 py-3 border-b last:border-0 ${!n.read ? "bg-orange-50/60" : ""}`}>
+            <button key={n.id} data-testid={`notification-${n.id.slice(0, 8)}`} onClick={() => { const to = linkFor(n); if (to) navigate(to); }} className={`w-full text-left px-4 py-3 border-b last:border-0 hover:bg-slate-50 ${!n.read ? "bg-orange-50/60" : ""}`}>
               <p className="text-sm font-semibold text-slate-800">{n.title}</p>
               <p className="text-xs text-slate-500 mt-0.5">{n.body}</p>
               <p className="text-[10px] text-slate-400 mt-1">{fmtDateTime(n.created_at)}</p>
-            </div>
+            </button>
           ))}
         </div>
       </PopoverContent>

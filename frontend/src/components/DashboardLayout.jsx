@@ -35,11 +35,24 @@ const slug = (label) => label.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,
 
 function TopLayout({ menu, title, subtitle, actions, children, user, doLogout }) {
   const [restId, setRestId] = useState(null);
+  const { refresh } = useAuth();
+  const navigate = useNavigate();
   useEffect(() => {
     api.get("/merchant/restaurant").then((r) => setRestId(r.data.id)).catch(() => {});
   }, []);
+  const stopImpersonation = async () => {
+    await api.post("/auth/impersonate/stop");
+    await refresh();
+    navigate("/admin/restaurantes");
+  };
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col" data-testid="merchant-top-layout">
+      {user?.impersonated_by && (
+        <div className="bg-violet-600 text-white text-xs font-bold px-4 h-9 flex items-center gap-3" data-testid="impersonation-banner">
+          <span className="flex-1 truncate">Modo suporte: você está vendo o painel de <b>{user.name}</b> como administrador Zupi.</span>
+          <button onClick={stopImpersonation} data-testid="impersonation-stop" className="h-7 px-3 rounded-lg bg-white text-violet-700 hover:bg-violet-50">Voltar ao admin</button>
+        </div>
+      )}
       <header className="sticky top-0 z-40 bg-[#121212] text-white shadow-lg">
         <div className="px-4 sm:px-6 h-16 flex items-center gap-4">
           <Logo light />

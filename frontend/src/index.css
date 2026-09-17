@@ -109,3 +109,18 @@ html {
 .splash-pop{animation:splash-pop .6s cubic-bezier(.2,.8,.2,1) both}
 @keyframes splash-rise{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
 .splash-rise{animation:splash-rise .5s .3s ease-out both}
+
+/* Central de Pedidos — tela cheia adapta à orientação do tablet */
+.kanban-fs { overflow-x: auto; scrollbar-width: none; }
+.kanban-fs::-webkit-scrollbar { display: none; }
+.kanban-col-fs { flex: 1 1 0; min-width: 0; }
+@media (orientation: portrait) {
+  .kanban-fs { scroll-snap-type: x mandatory; }
+  .kanban-col-fs { flex: 0 0 calc(50% - 6px); min-width: calc(50% - 6px); scroll-snap-align: start; }
+}
+@media (orientation: portrait) and (max-width: 640px) {
+  .kanban-col-fs { flex: 0 0 88vw; min-width: 88vw; }
+}
+@media (orientation: landscape) and (max-width: 1100px) {
+  .kanban-col-fs { flex: 0 0 calc(25% - 9px); min-width: calc(25% - 9px); }
+}

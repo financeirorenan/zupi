@@ -20,7 +20,7 @@ def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
 
 
-def create_access_token(user: dict) -> str:
+def create_access_token(user: dict, impersonated_by: str | None = None) -> str:
     payload = {
         "sub": user["id"],
         "email": user["email"],
@@ -28,16 +28,20 @@ def create_access_token(user: dict) -> str:
         "exp": datetime.now(timezone.utc) + timedelta(minutes=60),
         "type": "access",
     }
+    if impersonated_by:
+        payload["imp"] = impersonated_by
     return jwt.encode(payload, jwt_secret(), algorithm=JWT_ALGORITHM)
 
 
-def create_refresh_token(user: dict) -> str:
+def create_refresh_token(user: dict, impersonated_by: str | None = None) -> str:
     payload = {
         "sub": user["id"],
         "ver": user.get("token_version", 0),
         "exp": datetime.now(timezone.utc) + timedelta(days=7),
         "type": "refresh",
     }
+    if impersonated_by:
+        payload["imp"] = impersonated_by
     return jwt.encode(payload, jwt_secret(), algorithm=JWT_ALGORITHM)
 
 
@@ -45,9 +49,9 @@ def decode_token(token: str) -> dict:
     return jwt.decode(token, jwt_secret(), algorithms=[JWT_ALGORITHM])
 
 
-def set_auth_cookies(response: Response, user: dict):
-    response.set_cookie("access_token", create_access_token(user), httponly=True, secure=True, samesite="none", max_age=3600, path="/")
-    response.set_cookie("refresh_token", create_refresh_token(user), httponly=True, secure=True, samesite="none", max_age=604800, path="/")
+def set_auth_cookies(response: Response, user: dict, impersonated_by: str | None = None):
+    response.set_cookie("access_token", create_access_token(user, impersonated_by), httponly=True, secure=True, samesite="none", max_age=3600, path="/")
+    response.set_cookie("refresh_token", create_refresh_token(user, impersonated_by), httponly=True, secure=True, samesite="none", max_age=604800, path="/")
 
 
 def clear_auth_cookies(response: Response):
@@ -83,7 +87,10 @@ async def get_current_user(request: Request) -> dict:
         raise HTTPException(401, "Sessão expirada")
     if user.get("blocked"):
         raise HTTPException(403, "Conta bloqueada. Fale com o suporte.")
-    return public_user(user)
+    u = public_user(user)
+    if payload.get("imp"):
+        u["impersonated_by"] = payload["imp"]
+    return u
 
 
 def require_roles(*roles: str):

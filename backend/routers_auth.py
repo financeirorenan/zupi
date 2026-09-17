@@ -154,8 +154,28 @@ async def refresh(request: Request, response: Response):
     if not user or payload.get("ver", 0) != user.get("token_version", 0) or user.get("blocked"):
         clear_auth_cookies(response)
         raise HTTPException(401, "Sessão expirada")
-    response.set_cookie("access_token", create_access_token(user), httponly=True, secure=True, samesite="none", max_age=3600, path="/")
+    response.set_cookie("access_token", create_access_token(user, payload.get("imp")), httponly=True, secure=True, samesite="none", max_age=3600, path="/")
     return {"message": "ok"}
+
+
+@router.post("/impersonate/stop")
+async def stop_impersonation(request: Request, response: Response):
+    token = request.cookies.get("access_token") or request.cookies.get("refresh_token")
+    if not token:
+        raise HTTPException(401, "Não autenticado")
+    try:
+        payload = decode_token(token)
+    except jwt_error():
+        raise HTTPException(401, "Token inválido")
+    admin_id = payload.get("imp")
+    if not admin_id:
+        raise HTTPException(400, "Sessão não é de suporte")
+    admin_user = await db.users.find_one({"id": admin_id})
+    if not admin_user or admin_user.get("role") != "admin" or admin_user.get("blocked"):
+        clear_auth_cookies(response)
+        raise HTTPException(401, "Admin não encontrado")
+    set_auth_cookies(response, admin_user)
+    return public_user(admin_user)
 
 
 def jwt_error():

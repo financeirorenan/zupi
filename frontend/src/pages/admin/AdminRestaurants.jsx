@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { api, apiError, fmtBRL } from "@/lib/api";
 import { toast } from "sonner";
-import { Plus, CheckCircle, Ban, Sparkles } from "lucide-react";
+import { Plus, CheckCircle, Ban, Sparkles, LogIn } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const EMPTY = { name: "", owner_email: "", owner_password: "", owner_name: "", category: "Outros", city: "", phone: "", delivery_fee: "", min_order: "", prep_time: 40 };
 const STATUS_LABEL = { active: "Ativo", pending: "Pendente", blocked: "Bloqueado" };
@@ -30,6 +32,17 @@ export default function AdminRestaurants() {
 
   const act = async (fn, msg) => {
     try { await fn(); toast.success(msg); load(); } catch (e) { toast.error(apiError(e)); }
+  };
+
+  const navigate = useNavigate();
+  const { refresh } = useAuth();
+  const impersonate = async (r) => {
+    try {
+      await api.post(`/admin/restaurants/${r.id}/impersonate`);
+      await refresh();
+      toast.success(`Abrindo painel de ${r.name}`);
+      navigate("/lojista");
+    } catch (e) { toast.error(apiError(e)); }
   };
 
   const save = async () => {
@@ -76,6 +89,11 @@ export default function AdminRestaurants() {
                   <td className="p-4"><span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${STATUS_CLS[r.status]}`}>{STATUS_LABEL[r.status] || r.status}</span></td>
                   <td className="p-4">
                     <div className="flex gap-1.5 justify-end">
+                      {r.owner_id && (
+                        <Button size="sm" data-testid={`impersonate-${r.id.slice(0, 8)}`} onClick={() => impersonate(r)} className="rounded-lg h-9 text-xs font-bold bg-slate-900 hover:bg-slate-700">
+                          <LogIn className="w-3.5 h-3.5 mr-1" /> Abrir painel
+                        </Button>
+                      )}
                       {r.status === "pending" && (
                         <Button size="sm" data-testid={`approve-${r.id.slice(0, 8)}`} onClick={() => act(() => api.post(`/admin/restaurants/${r.id}/approve`), "Restaurante aprovado")} className="rounded-lg h-9 text-xs font-bold bg-emerald-500 hover:bg-emerald-600">
                           <CheckCircle className="w-3.5 h-3.5 mr-1" /> Aprovar

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate, Link } from "react-router-dom";
-import { LogOut, Menu as MenuIcon, Store } from "lucide-react";
+import { LogOut, Menu as MenuIcon, Store, ShieldCheck, ArrowLeft } from "lucide-react";
 import { useState, useEffect } from "react";
 import Logo from "@/components/Logo";
 import NotificationsBell from "@/components/NotificationsBell";
@@ -35,22 +35,22 @@ const slug = (label) => label.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,
 
 function TopLayout({ menu, title, subtitle, actions, children, user, doLogout }) {
   const [restId, setRestId] = useState(null);
-  const { refresh } = useAuth();
-  const navigate = useNavigate();
   useEffect(() => {
     api.get("/merchant/restaurant").then((r) => setRestId(r.data.id)).catch(() => {});
   }, []);
   const stopImpersonation = async () => {
     await api.post("/auth/impersonate/stop");
-    await refresh();
-    navigate("/admin/restaurantes");
+    window.location.assign("/admin/restaurantes");
   };
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col" data-testid="merchant-top-layout">
       {user?.impersonated_by && (
-        <div className="bg-violet-600 text-white text-xs font-bold px-4 h-9 flex items-center gap-3" data-testid="impersonation-banner">
-          <span className="flex-1 truncate">Modo suporte: você está vendo o painel de <b>{user.name}</b> como administrador Zupi.</span>
-          <button onClick={stopImpersonation} data-testid="impersonation-stop" className="h-7 px-3 rounded-lg bg-white text-violet-700 hover:bg-violet-50">Voltar ao admin</button>
+        <div className="bg-violet-600 text-white text-sm font-bold px-4 h-12 flex items-center gap-3" data-testid="impersonation-banner">
+          <ShieldCheck className="w-5 h-5 shrink-0" />
+          <span className="flex-1 truncate">Modo suporte — você está no painel de <b>{user.name}</b> como administrador Zupi.</span>
+          <button onClick={stopImpersonation} data-testid="impersonation-stop" className="h-9 px-4 rounded-xl bg-white text-violet-700 hover:bg-violet-50 flex items-center gap-2 shrink-0">
+            <ArrowLeft className="w-4 h-4" /> Voltar ao menu admin
+          </button>
         </div>
       )}
       <header className="sticky top-0 z-40 bg-[#121212] text-white shadow-lg">
@@ -67,9 +67,15 @@ function TopLayout({ menu, title, subtitle, actions, children, user, doLogout })
             <p className="text-sm font-bold truncate">{user?.name}</p>
             <p className="text-xs text-slate-400 truncate">{user?.email}</p>
           </div>
-          <button onClick={doLogout} data-testid="sidebar-logout" className="h-11 px-4 flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-semibold transition-colors">
-            <LogOut className="w-4 h-4" /> Sair
-          </button>
+          {user?.impersonated_by ? (
+            <button onClick={stopImpersonation} data-testid="header-back-to-admin" className="h-11 px-4 flex items-center gap-2 rounded-xl bg-violet-500 hover:bg-violet-400 text-sm font-semibold transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Voltar ao admin
+            </button>
+          ) : (
+            <button onClick={doLogout} data-testid="sidebar-logout" className="h-11 px-4 flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-semibold transition-colors">
+              <LogOut className="w-4 h-4" /> Sair
+            </button>
+          )}
         </div>
         <nav className="px-2 sm:px-4 flex gap-1 overflow-x-auto border-t border-white/10 scrollbar-none" data-testid="merchant-top-nav">
           {menu.map(({ to, icon: Icon, label, end }) => (
